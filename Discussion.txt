@@ -1,0 +1,36 @@
+1. Prompt for the project:-
+    We wish to build a local emotional ai, which might help men and woman discuss and understand problems related to human psycology, emotions and relationships, it can also be used to mimic a character, where should we start.
+
+2. Link for Gemini chat:
+    https://gemini.google.com/share/74ff05e4e63d
+
+3. Import models from somewhere.
+
+4. Backend handle using python nd chromadb
+
+5. Integrating llama.cpp with SQLite/ChromaDB
+    Since you’re building a "long-term memory" system, you can use llama.cpp for two different things simultaneously:
+
+    The Conversationalist: To talk to the user.
+
+    The Librarian: To turn messages into "embeddings" to save in your database.
+
+    The Workflow:
+
+    User says something.
+
+    Use llm.create_embedding("user text") to get a list of numbers.
+
+    Search SQLite/ChromaDB for past messages with similar numbers.
+
+    Inject those past memories into the prompt so the AI remembers the user's history.  
+
+    Generate the final emotional response.
+
+6. https://developer.nvidia.com/cuda-downloads
+
+7. ollama qwen3 8B model:-
+ollama pull qwen3:8b
+
+memory model:-
+ollama pull nomic-embed-text

@@ -1,0 +1,73 @@
+1. Import and use ChromaDB:
+    # pip install chromadb
+    import chromadb
+    client = chromadb.Client()
+
+    # Create collection and add data
+    collection = client.create_collection("my_collection")
+    collection.add(
+        documents=["This is a document", "This is another document"],
+        metadatas=[{"source": "notion"}, {"source": "google"}],
+        ids=["doc1", "doc2"]
+    )
+
+    # Query the collection
+    results = collection.query(
+        query_texts=["semantic search"],
+        n_results=1
+    )
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+    
+2. Import and use sqlite:
+    import sqlite3
+
+    # 1. Connect to your local 'Emotional Memory'
+    db = sqlite3.connect("emotional_ai.db")
+
+    def get_recent_context(user_id):
+        cursor = db.cursor()
+        # Pull the last 5 interactions to give the AI 'Short-Term' awareness
+        cursor.execute("SELECT role, content FROM history WHERE user_id=? ORDER BY id DESC LIMIT 5", (user_id,))
+        rows = cursor.fetchall()
+        return "\n".join([f"{r[0]}: {r[1]}" for r in reversed(rows)])
+
+    # 2. Build the 'Augmented' Prompt
+    user_input = "He didn't call me back again."
+    past_context = get_recent_context(user_id=1)
+
+    final_prompt = f"""
+    You are an empathetic AI. Use the past context to inform your answer.
+    Past Context:
+    {past_context}
+
+    User's new message: {user_input}
+    Response:"""
+
+    # 3. Send 'final_prompt' to your local LLM (Ollama/LM Studio)
+
+----------------------------------------------------------------------------------------------------------------------
+
+3. Here is how you would initialize your "Emotional Engine":
+    from llama_cpp import Llama
+
+    # Initialize the model (Download a .gguf model from HuggingFace first)
+    llm = Llama(
+        model_path="path/to/llama-3-8b-instruct.Q4_K_M.gguf",
+        n_ctx=2048,  # The "memory window" for the current conversation
+        n_threads=4  # Number of CPU cores to use
+    )
+
+    # A simple "Empathy Test"
+    response = llm.create_chat_completion(
+        messages=[
+            {"role": "system", "content": "You are an empathetic AI that uses psychology to help users."},
+            {"role": "user", "content": "I feel like my partner isn't listening to me lately."}
+        ]
+    )
+
+    print(response["choices"][0]["message"]["content"])
+    
+----------------------------------------------------------------------------------------------------------------------
+
+4. 

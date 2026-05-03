@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Emotional AI Starter</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #151816;
+      --panel: #20251f;
+      --panel-2: #292f27;
+      --text: #f3f0e8;
+      --muted: #b7b2a7;
+      --accent: #5bd6a2;
+      --danger: #ff8178;
+      --border: #3b4439;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    header {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+      background: #111411;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .status {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    main {
+      width: min(980px, 100%);
+      margin: 0 auto;
+      padding: 22px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 16px;
+      min-height: 0;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .pill {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 8px;
+      min-width: 0;
+    }
+
+    .pill span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .pill strong {
+      display: block;
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    .chat {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 8px;
+      min-height: 420px;
+      max-height: calc(100vh - 210px);
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .message {
+      max-width: 78%;
+      padding: 12px 14px;
+      border-radius: 8px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .user {
+      align-self: flex-end;
+      background: #244b5a;
+    }
+
+    .assistant {
+      align-self: flex-start;
+      background: var(--panel-2);
+    }
+
+    .error {
+      color: var(--danger);
+    }
+
+    form {
+      width: min(980px, 100%);
+      margin: 0 auto;
+      padding: 0 22px 22px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+    }
+
+    textarea {
+      resize: none;
+      min-height: 54px;
+      max-height: 160px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      padding: 13px 14px;
+      font: inherit;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+    }
+
+    button {
+      border: 0;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #082015;
+      font-weight: 700;
+      padding: 0 20px;
+      min-width: 96px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: wait;
+    }
+
+    @media (max-width: 700px) {
+      header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      main {
+        padding: 14px;
+      }
+
+      .meta {
+        grid-template-columns: 1fr;
+      }
+
+      .chat {
+        max-height: calc(100vh - 285px);
+      }
+
+      .message {
+        max-width: 92%;
+      }
+
+      form {
+        padding: 0 14px 14px;
+        grid-template-columns: 1fr;
+      }
+
+      button {
+        min-height: 44px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ponponchan</h1>
+    <div class="status">
+      <span class="dot" aria-hidden="true"></span>
+      <span>Local emotional AI</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="meta" aria-label="Current response state">
+      <div class="pill">
+        <span>Emotion</span>
+        <strong id="emotion">neutral</strong>
+      </div>
+      <div class="pill">
+        <span>Intensity</span>
+        <strong id="intensity">low</strong>
+      </div>
+      <div class="pill">
+        <span>Mode</span>
+        <strong id="mode">normal_mode</strong>
+      </div>
+    </section>
+
+    <section id="chat" class="chat" aria-live="polite">
+      <div class="message assistant">Hey, I am ponponchan. Tell me what is going on, and I will respond to the mood you bring.</div>
+    </section>
+  </main>
+
+  <form id="chat-form">
+    <textarea id="message" placeholder="Type your message..." autocomplete="off"></textarea>
+    <button id="send" type="submit">Send</button>
+  </form>
+
+  <script>
+    const chat = document.getElementById("chat");
+    const form = document.getElementById("chat-form");
+    const input = document.getElementById("message");
+    const send = document.getElementById("send");
+    const emotion = document.getElementById("emotion");
+    const intensity = document.getElementById("intensity");
+    const mode = document.getElementById("mode");
+
+    function addMessage(text, role, extraClass = "") {
+      const bubble = document.createElement("div");
+      bubble.className = `message ${role} ${extraClass}`.trim();
+      bubble.textContent = text;
+      chat.appendChild(bubble);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const text = input.value.trim();
+      if (!text) return;
+
+      addMessage(text, "user");
+      input.value = "";
+      send.disabled = true;
+      send.textContent = "Thinking";
+
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text, user_id: "local-user" })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.detail || "Request failed");
+        }
+
+        const data = await response.json();
+        emotion.textContent = data.emotion;
+        intensity.textContent = data.intensity;
+        mode.textContent = data.mode;
+        addMessage(data.reply || "(No reply)", "assistant");
+      } catch (error) {
+        addMessage(error.message, "assistant", "error");
+      } finally {
+        send.disabled = false;
+        send.textContent = "Send";
+        input.focus();
+      }
+    });
+
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        form.requestSubmit();
+      }
+    });
+  </script>
+</body>
+</html>
