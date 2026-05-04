@@ -6,7 +6,16 @@ class EmotionResult:
     emotion: str
     intensity: str
     risk: str
+    confidence: float = 0.0
+    reason: str = ""
 
+
+ALLOWED_EMOTIONS = {
+    "happy", "sad", "lonely", "heartbroken", "angry", "anxious",
+    "romantic", "confused", "guilty", "neutral", "crisis"
+}
+ALLOWED_INTENSITIES = {"low", "medium", "high"}
+ALLOWED_RISKS = {"normal", "crisis"}
 
 KEYWORDS = {
     "happy": [
@@ -65,11 +74,47 @@ HIGH_INTENSITY_WORDS = [
 ]
 
 
-def detect_emotion(text: str) -> EmotionResult:
+def detect_emotion_ai(text: str) -> EmotionResult:
+    keyword_result = detect_emotion_keywords(text)
+    if keyword_result.risk == "crisis":
+        return keyword_result
+
+    try:
+        from ollama_client import classify_emotion_json
+
+        result = classify_emotion_json(text)
+        emotion = normalize_choice(result.get("emotion"), ALLOWED_EMOTIONS, "neutral")
+        intensity = normalize_choice(result.get("intensity"), ALLOWED_INTENSITIES, "low")
+        risk = normalize_choice(result.get("risk"), ALLOWED_RISKS, "normal")
+        confidence = float(result.get("confidence", 0.0) or 0.0)
+        reason = str(result.get("reason", "") or "")[:240]
+
+        if risk == "crisis":
+            emotion = "crisis"
+            intensity = "high"
+
+        return EmotionResult(
+            emotion=emotion,
+            intensity=intensity,
+            risk=risk,
+            confidence=max(0.0, min(confidence, 1.0)),
+            reason=reason
+        )
+    except Exception:
+        return keyword_result
+
+
+def detect_emotion_keywords(text: str) -> EmotionResult:
     normalized = text.lower().strip()
 
     if any(keyword in normalized for keyword in CRISIS_KEYWORDS):
-        return EmotionResult(emotion="crisis", intensity="high", risk="crisis")
+        return EmotionResult(
+            emotion="crisis",
+            intensity="high",
+            risk="crisis",
+            confidence=1.0,
+            reason="Matched crisis safety wording."
+        )
 
     scores = {}
     for emotion, keywords in KEYWORDS.items():
@@ -78,9 +123,26 @@ def detect_emotion(text: str) -> EmotionResult:
             scores[emotion] = score
 
     if not scores:
-        return EmotionResult(emotion="neutral", intensity="low", risk="normal")
+        return EmotionResult(
+            emotion="neutral",
+            intensity="low",
+            risk="normal",
+            confidence=0.35,
+            reason="No strong emotion keyword matched."
+        )
 
     emotion = max(scores, key=scores.get)
     intensity = "high" if any(word in normalized for word in HIGH_INTENSITY_WORDS) else "medium"
 
-    return EmotionResult(emotion=emotion, intensity=intensity, risk="normal")
+    return EmotionResult(
+        emotion=emotion,
+        intensity=intensity,
+        risk="normal",
+        confidence=0.55,
+        reason="Keyword fallback classification."
+    )
+
+
+def normalize_choice(value: object, allowed: set[str], default: str) -> str:
+    normalized = str(value or "").strip().lower()
+    return normalized if normalized in allowed else default

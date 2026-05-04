@@ -3,18 +3,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Emotional AI Starter</title>
+  <title>ponponchan</title>
   <style>
     :root {
       color-scheme: dark;
-      --bg: #151816;
-      --panel: #20251f;
-      --panel-2: #292f27;
-      --text: #f3f0e8;
-      --muted: #b7b2a7;
-      --accent: #5bd6a2;
-      --danger: #ff8178;
-      --border: #3b4439;
+      --bg: #101216;
+      --surface: #171b21;
+      --panel: #20242d;
+      --panel-soft: #151a1e;
+      --line: #333a46;
+      --text: #f4f0e8;
+      --muted: #aeb6c2;
+      --teal: #4cc9a6;
+      --blue: #6da7ff;
+      --amber: #f3b95f;
+      --rose: #ef6f83;
+      --shadow: rgba(0, 0, 0, 0.28);
     }
 
     * {
@@ -24,288 +28,970 @@
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: Arial, Helvetica, sans-serif;
       background: var(--bg);
       color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
       display: grid;
-      grid-template-rows: auto 1fr auto;
+      grid-template-rows: auto 1fr;
     }
 
-    header {
-      padding: 18px 22px;
-      border-bottom: 1px solid var(--border);
-      background: #111411;
+    button, input, textarea, select {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--text);
+      min-height: 36px;
+      padding: 0 12px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      border-color: var(--blue);
+    }
+
+    button:disabled {
+      cursor: wait;
+      opacity: 0.55;
+    }
+
+    .primary {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #061a14;
+      font-weight: 700;
+    }
+
+    .danger {
+      border-color: #7c3944;
+      color: #ffd7dd;
+    }
+
+    .topbar {
+      height: 62px;
+      border-bottom: 1px solid var(--line);
+      background: #0d1014;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 16px;
+      padding: 0 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+    }
+
+    .mark {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--teal);
+      color: #061a14;
+      font-weight: 900;
+    }
+
+    .metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 7px 10px;
+      color: var(--muted);
+      font-size: 12px;
+      min-width: 96px;
+    }
+
+    .metric strong {
+      display: block;
+      color: var(--text);
+      margin-top: 2px;
+      overflow-wrap: anywhere;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .app {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 250px minmax(360px, 1fr) 380px;
+    }
+
+    .sidebar, .inspector {
+      min-height: 0;
+      overflow: auto;
+      background: var(--surface);
+      border-right: 1px solid var(--line);
+      padding: 14px;
+    }
+
+    .inspector {
+      border-right: 0;
+      border-left: 1px solid var(--line);
+    }
+
+    .section-title {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      margin: 0 0 10px;
+    }
+
+    .session-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .session {
+      width: 100%;
+      text-align: left;
+      min-height: 58px;
+      display: grid;
+      gap: 4px;
+      background: var(--panel-soft);
+    }
+
+    .session.active {
+      border-color: var(--teal);
+      box-shadow: inset 3px 0 0 var(--teal);
+    }
+
+    .session span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .new-session {
+      margin-top: 14px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    label {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #0e1217;
+      color: var(--text);
+      padding: 10px 11px;
+      outline: none;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+      line-height: 1.45;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--blue);
+    }
+
+    .chat-area {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      background: #11141a;
+    }
+
+    .chat-head {
+      border-bottom: 1px solid var(--line);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 16px;
     }
 
-    h1 {
-      margin: 0;
+    .chat-title h1 {
+      margin: 0 0 4px;
       font-size: 20px;
-      font-weight: 700;
       letter-spacing: 0;
     }
 
-    .status {
-      display: flex;
-      gap: 8px;
-      align-items: center;
+    .chat-title p {
+      margin: 0;
       color: var(--muted);
       font-size: 13px;
     }
 
-    .dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 999px;
-      background: var(--accent);
-    }
-
-    main {
-      width: min(980px, 100%);
-      margin: 0 auto;
-      padding: 22px;
-      display: grid;
-      grid-template-rows: auto 1fr;
-      gap: 16px;
+    .chat-log {
       min-height: 0;
-    }
-
-    .meta {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .pill {
-      border: 1px solid var(--border);
-      background: var(--panel);
-      padding: 10px 12px;
-      border-radius: 8px;
-      min-width: 0;
-    }
-
-    .pill span {
-      display: block;
-      color: var(--muted);
-      font-size: 12px;
-      margin-bottom: 4px;
-    }
-
-    .pill strong {
-      display: block;
-      font-size: 14px;
-      overflow-wrap: anywhere;
-    }
-
-    .chat {
-      border: 1px solid var(--border);
-      background: var(--panel);
-      border-radius: 8px;
-      min-height: 420px;
-      max-height: calc(100vh - 210px);
       overflow-y: auto;
-      padding: 16px;
+      padding: 18px;
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
 
     .message {
-      max-width: 78%;
-      padding: 12px 14px;
+      width: min(78%, 720px);
+      border: 1px solid var(--line);
       border-radius: 8px;
-      line-height: 1.45;
+      padding: 12px 14px;
+      line-height: 1.46;
       white-space: pre-wrap;
       overflow-wrap: anywhere;
+      box-shadow: 0 8px 22px var(--shadow);
     }
 
-    .user {
+    .message.user {
       align-self: flex-end;
-      background: #244b5a;
+      background: #172d39;
+      border-color: #27556c;
     }
 
-    .assistant {
+    .message.assistant {
       align-self: flex-start;
-      background: var(--panel-2);
+      background: var(--panel);
     }
 
-    .error {
-      color: var(--danger);
+    .message-meta {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 11px;
     }
 
-    form {
-      width: min(980px, 100%);
-      margin: 0 auto;
-      padding: 0 22px 22px;
+    .composer {
+      border-top: 1px solid var(--line);
+      padding: 14px 18px;
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 10px;
+      background: #0d1014;
     }
 
-    textarea {
-      resize: none;
+    .composer textarea {
       min-height: 54px;
-      max-height: 160px;
+      max-height: 180px;
+      resize: none;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .tab.active {
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    .panel {
+      display: none;
+      gap: 12px;
+    }
+
+    .panel.active {
+      display: grid;
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .row input, .row select {
+      min-width: 0;
+    }
+
+    .list {
+      display: grid;
+      gap: 8px;
+      max-height: 320px;
+      overflow: auto;
+    }
+
+    .item {
+      border: 1px solid var(--line);
+      background: var(--panel-soft);
       border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--panel);
-      color: var(--text);
-      padding: 13px 14px;
-      font: inherit;
-      outline: none;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
     }
 
-    textarea:focus {
-      border-color: var(--accent);
+    .item.pinned {
+      border-color: var(--amber);
     }
 
-    button {
-      border: 0;
-      border-radius: 8px;
-      background: var(--accent);
-      color: #082015;
-      font-weight: 700;
-      padding: 0 20px;
-      min-width: 96px;
-      cursor: pointer;
+    .item small {
+      color: var(--muted);
+      overflow-wrap: anywhere;
     }
 
-    button:disabled {
-      opacity: 0.55;
-      cursor: wait;
+    .item-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
     }
 
-    @media (max-width: 700px) {
-      header {
-        align-items: flex-start;
-        flex-direction: column;
+    .mini {
+      min-height: 30px;
+      padding: 0 9px;
+      font-size: 12px;
+    }
+
+    .studio-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .status-line {
+      color: var(--muted);
+      font-size: 12px;
+      min-height: 18px;
+    }
+
+    @media (max-width: 1150px) {
+      .app {
+        grid-template-columns: 220px 1fr;
       }
 
-      main {
-        padding: 14px;
+      .inspector {
+        grid-column: 1 / -1;
+        border-left: 0;
+        border-top: 1px solid var(--line);
+        max-height: 42vh;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .topbar {
+        height: auto;
+        grid-template-columns: 1fr;
+        padding: 12px;
       }
 
-      .meta {
+      .app {
         grid-template-columns: 1fr;
       }
 
-      .chat {
-        max-height: calc(100vh - 285px);
+      .sidebar {
+        max-height: 220px;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
       }
 
       .message {
-        max-width: 92%;
+        width: 94%;
       }
 
-      form {
-        padding: 0 14px 14px;
+      .composer {
         grid-template-columns: 1fr;
-      }
-
-      button {
-        min-height: 44px;
       }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>ponponchan</h1>
-    <div class="status">
-      <span class="dot" aria-hidden="true"></span>
-      <span>Local emotional AI</span>
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark">p</div>
+      <div>ponponchan</div>
+    </div>
+    <div class="metrics">
+      <div class="metric">Emotion<strong id="metric-emotion">neutral</strong></div>
+      <div class="metric">Mode<strong id="metric-mode">normal_mode</strong></div>
+      <div class="metric">Recall<strong id="metric-recall">0 archive</strong></div>
+      <div class="metric">Confidence<strong id="metric-confidence">0%</strong></div>
+    </div>
+    <div class="top-actions">
+      <button id="rebuild-index" type="button">Build Recall Index</button>
+      <button id="export-history" type="button">Export</button>
     </div>
   </header>
 
-  <main>
-    <section class="meta" aria-label="Current response state">
-      <div class="pill">
-        <span>Emotion</span>
-        <strong id="emotion">neutral</strong>
-      </div>
-      <div class="pill">
-        <span>Intensity</span>
-        <strong id="intensity">low</strong>
-      </div>
-      <div class="pill">
-        <span>Mode</span>
-        <strong id="mode">normal_mode</strong>
-      </div>
-    </section>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="section-title">Sessions</div>
+      <div id="session-list" class="session-list"></div>
 
-    <section id="chat" class="chat" aria-live="polite">
-      <div class="message assistant">Hey, I am ponponchan. Tell me what is going on, and I will respond to the mood you bring.</div>
-    </section>
-  </main>
+      <form id="new-session-form" class="new-session">
+        <div class="field">
+          <label for="new-session-title">New Session</label>
+          <input id="new-session-title" placeholder="chat name">
+        </div>
+        <button class="primary" type="submit">Create</button>
+      </form>
+    </aside>
 
-  <form id="chat-form">
-    <textarea id="message" placeholder="Type your message..." autocomplete="off"></textarea>
-    <button id="send" type="submit">Send</button>
-  </form>
+    <main class="chat-area">
+      <div class="chat-head">
+        <div class="chat-title">
+          <h1 id="session-title">General</h1>
+          <p id="session-description">Everyday conversation and emotional check-ins.</p>
+        </div>
+        <div class="status-line" id="chat-status"></div>
+      </div>
+
+      <section id="chat-log" class="chat-log" aria-live="polite"></section>
+
+      <form id="chat-form" class="composer">
+        <textarea id="message-input" placeholder="Type to ponponchan..." autocomplete="off"></textarea>
+        <button id="send-message" class="primary" type="submit">Send</button>
+      </form>
+    </main>
+
+    <aside class="inspector">
+      <div class="tabs">
+        <button class="tab active" data-panel="archive-panel" type="button">Archive</button>
+        <button class="tab" data-panel="memory-panel" type="button">Memory</button>
+        <button class="tab" data-panel="studio-panel" type="button">Character</button>
+      </div>
+
+      <section id="archive-panel" class="panel active">
+        <div class="section-title">
+          <span>Conversation Archive</span>
+          <span id="archive-count">0 saved</span>
+        </div>
+        <div class="row">
+          <input id="archive-search" placeholder="Search old conversation">
+          <button id="archive-search-button" type="button">Search</button>
+        </div>
+        <div class="row">
+          <select id="archive-scope">
+            <option value="current">Current session</option>
+            <option value="all">All sessions</option>
+          </select>
+          <button id="load-archive" type="button">Refresh</button>
+        </div>
+        <div id="archive-list" class="list"></div>
+      </section>
+
+      <section id="memory-panel" class="panel">
+        <div class="section-title">
+          <span>Extracted Memory</span>
+          <span id="memory-count">0 saved</span>
+        </div>
+        <form id="memory-form" class="row">
+          <input id="memory-input" placeholder="Add memory">
+          <button class="primary" type="submit">Remember</button>
+        </form>
+        <div id="memory-list" class="list"></div>
+      </section>
+
+      <section id="studio-panel" class="panel">
+        <div class="section-title">Character Studio</div>
+        <form id="character-form" class="studio-grid">
+          <div class="field">
+            <label for="character-name">Name</label>
+            <input id="character-name">
+          </div>
+          <div class="field">
+            <label for="character-personality">Personality</label>
+            <textarea id="character-personality"></textarea>
+          </div>
+          <div class="field">
+            <label for="character-tone">Base Tone</label>
+            <textarea id="character-tone"></textarea>
+          </div>
+          <div class="field">
+            <label for="speaking-style">Speaking Style</label>
+            <textarea id="speaking-style"></textarea>
+          </div>
+          <div class="field">
+            <label for="boundaries">Boundaries</label>
+            <textarea id="boundaries"></textarea>
+          </div>
+          <div class="field">
+            <label for="mode-select">Response Mode</label>
+            <select id="mode-select"></select>
+          </div>
+          <div class="field">
+            <label for="mode-tone">Mode Tone</label>
+            <input id="mode-tone">
+          </div>
+          <div class="field">
+            <label for="mode-must">Mode Must Do</label>
+            <textarea id="mode-must"></textarea>
+          </div>
+          <div class="field">
+            <label for="mode-avoid">Mode Avoid</label>
+            <textarea id="mode-avoid"></textarea>
+          </div>
+          <button class="primary" type="submit">Save Character</button>
+          <div id="studio-status" class="status-line"></div>
+        </form>
+      </section>
+    </aside>
+  </div>
 
   <script>
-    const chat = document.getElementById("chat");
-    const form = document.getElementById("chat-form");
-    const input = document.getElementById("message");
-    const send = document.getElementById("send");
-    const emotion = document.getElementById("emotion");
-    const intensity = document.getElementById("intensity");
-    const mode = document.getElementById("mode");
+    const state = {
+      userId: "local-user",
+      sessionId: "general",
+      sessions: [],
+      character: null,
+      activeMode: "comfort_mode"
+    };
 
-    function addMessage(text, role, extraClass = "") {
-      const bubble = document.createElement("div");
-      bubble.className = `message ${role} ${extraClass}`.trim();
-      bubble.textContent = text;
-      chat.appendChild(bubble);
-      chat.scrollTop = chat.scrollHeight;
-    }
+    const els = {
+      sessionList: document.getElementById("session-list"),
+      sessionTitle: document.getElementById("session-title"),
+      sessionDescription: document.getElementById("session-description"),
+      chatLog: document.getElementById("chat-log"),
+      chatForm: document.getElementById("chat-form"),
+      messageInput: document.getElementById("message-input"),
+      sendMessage: document.getElementById("send-message"),
+      chatStatus: document.getElementById("chat-status"),
+      newSessionForm: document.getElementById("new-session-form"),
+      newSessionTitle: document.getElementById("new-session-title"),
+      metricEmotion: document.getElementById("metric-emotion"),
+      metricMode: document.getElementById("metric-mode"),
+      metricRecall: document.getElementById("metric-recall"),
+      metricConfidence: document.getElementById("metric-confidence"),
+      archiveCount: document.getElementById("archive-count"),
+      archiveList: document.getElementById("archive-list"),
+      archiveSearch: document.getElementById("archive-search"),
+      archiveSearchButton: document.getElementById("archive-search-button"),
+      archiveScope: document.getElementById("archive-scope"),
+      loadArchive: document.getElementById("load-archive"),
+      memoryCount: document.getElementById("memory-count"),
+      memoryList: document.getElementById("memory-list"),
+      memoryForm: document.getElementById("memory-form"),
+      memoryInput: document.getElementById("memory-input"),
+      exportHistory: document.getElementById("export-history"),
+      rebuildIndex: document.getElementById("rebuild-index"),
+      characterForm: document.getElementById("character-form"),
+      characterName: document.getElementById("character-name"),
+      characterPersonality: document.getElementById("character-personality"),
+      characterTone: document.getElementById("character-tone"),
+      speakingStyle: document.getElementById("speaking-style"),
+      boundaries: document.getElementById("boundaries"),
+      modeSelect: document.getElementById("mode-select"),
+      modeTone: document.getElementById("mode-tone"),
+      modeMust: document.getElementById("mode-must"),
+      modeAvoid: document.getElementById("mode-avoid"),
+      studioStatus: document.getElementById("studio-status")
+    };
 
-    form.addEventListener("submit", async (event) => {
+    document.querySelectorAll(".tab").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach((tab) => tab.classList.remove("active"));
+        document.querySelectorAll(".panel").forEach((panel) => panel.classList.remove("active"));
+        button.classList.add("active");
+        document.getElementById(button.dataset.panel).classList.add("active");
+      });
+    });
+
+    els.chatForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-
-      const text = input.value.trim();
+      const text = els.messageInput.value.trim();
       if (!text) return;
 
-      addMessage(text, "user");
-      input.value = "";
-      send.disabled = true;
-      send.textContent = "Thinking";
+      addChatMessage({ role: "user", content: text });
+      els.messageInput.value = "";
+      els.sendMessage.disabled = true;
+      els.chatStatus.textContent = "Thinking";
 
       try {
-        const response = await fetch("/api/chat", {
+        const data = await api("/api/chat", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text, user_id: "local-user" })
+          body: {
+            message: text,
+            user_id: state.userId,
+            session_id: state.sessionId
+          }
         });
 
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.detail || "Request failed");
-        }
+        addChatMessage({
+          id: data.assistant_message_id,
+          role: "assistant",
+          content: data.reply,
+          emotion: data.emotion,
+          mode: data.mode
+        });
+        els.metricEmotion.textContent = `${data.emotion} / ${data.intensity}`;
+        els.metricMode.textContent = data.mode;
+        els.metricRecall.textContent = `${data.archive_used} archive`;
+        els.metricConfidence.textContent = `${Math.round((data.confidence || 0) * 100)}%`;
+        els.chatStatus.textContent = data.reason || "";
 
-        const data = await response.json();
-        emotion.textContent = data.emotion;
-        intensity.textContent = data.intensity;
-        mode.textContent = data.mode;
-        addMessage(data.reply || "(No reply)", "assistant");
+        await Promise.all([loadSessions(), loadArchive(), loadMemories()]);
       } catch (error) {
-        addMessage(error.message, "assistant", "error");
+        addChatMessage({ role: "assistant", content: error.message });
+        els.chatStatus.textContent = "Request failed";
       } finally {
-        send.disabled = false;
-        send.textContent = "Send";
-        input.focus();
+        els.sendMessage.disabled = false;
+        els.messageInput.focus();
       }
     });
 
-    input.addEventListener("keydown", (event) => {
+    els.messageInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
-        form.requestSubmit();
+        els.chatForm.requestSubmit();
       }
     });
+
+    els.newSessionForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const title = els.newSessionTitle.value.trim();
+      if (!title) return;
+      const data = await api("/api/sessions", {
+        method: "POST",
+        body: { user_id: state.userId, title }
+      });
+      state.sessionId = data.session.id;
+      els.newSessionTitle.value = "";
+      await refreshForSession();
+    });
+
+    els.archiveSearchButton.addEventListener("click", searchArchive);
+    els.archiveSearch.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        searchArchive();
+      }
+    });
+    els.loadArchive.addEventListener("click", loadArchive);
+
+    els.memoryForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const content = els.memoryInput.value.trim();
+      if (!content) return;
+      await api("/api/memories", {
+        method: "POST",
+        body: { user_id: state.userId, content, pinned: true }
+      });
+      els.memoryInput.value = "";
+      await loadMemories();
+    });
+
+    els.exportHistory.addEventListener("click", exportHistory);
+    els.rebuildIndex.addEventListener("click", rebuildIndex);
+
+    els.modeSelect.addEventListener("change", () => {
+      saveCurrentModeDraft();
+      state.activeMode = els.modeSelect.value;
+      renderModeEditor();
+    });
+
+    els.characterForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      saveCurrentModeDraft();
+      const character = {
+        name: els.characterName.value.trim(),
+        personality: els.characterPersonality.value.trim(),
+        base_tone: els.characterTone.value.trim(),
+        speaking_style: linesFromText(els.speakingStyle.value),
+        boundaries: linesFromText(els.boundaries.value),
+        response_modes: state.character.response_modes
+      };
+      const data = await api("/api/character", {
+        method: "PUT",
+        body: { character }
+      });
+      state.character = data.character;
+      els.studioStatus.textContent = "Saved";
+      renderCharacterForm();
+    });
+
+    async function init() {
+      await Promise.all([loadSessions(), loadCharacter()]);
+      await refreshForSession();
+    }
+
+    async function refreshForSession() {
+      const current = state.sessions.find((session) => session.id === state.sessionId) || state.sessions[0];
+      if (current) {
+        state.sessionId = current.id;
+        els.sessionTitle.textContent = current.title;
+        els.sessionDescription.textContent = current.description || current.mode_hint || "";
+      }
+      renderSessions();
+      await Promise.all([loadChatHistory(), loadArchive(), loadMemories()]);
+    }
+
+    async function loadSessions() {
+      const data = await api(`/api/sessions?user_id=${encodeURIComponent(state.userId)}`);
+      state.sessions = data.sessions || [];
+      renderSessions();
+    }
+
+    function renderSessions() {
+      els.sessionList.innerHTML = "";
+      for (const session of state.sessions) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `session ${session.id === state.sessionId ? "active" : ""}`;
+        button.innerHTML = `<strong></strong><span></span>`;
+        button.querySelector("strong").textContent = session.title;
+        button.querySelector("span").textContent = `${session.message_count || 0} messages`;
+        button.addEventListener("click", async () => {
+          state.sessionId = session.id;
+          await refreshForSession();
+        });
+        els.sessionList.appendChild(button);
+      }
+    }
+
+    async function loadChatHistory() {
+      const data = await api(`/api/history?user_id=${state.userId}&session_id=${state.sessionId}&limit=80`);
+      els.chatLog.innerHTML = "";
+      if (!data.messages || data.messages.length === 0) {
+        addChatMessage({
+          role: "assistant",
+          content: `I am here. This ${sessionTitle()} session is fresh, so tell me what you want to work through.`
+        });
+        return;
+      }
+      for (const message of data.messages) addChatMessage(message);
+    }
+
+    function addChatMessage(message) {
+      const bubble = document.createElement("article");
+      bubble.className = `message ${message.role === "user" ? "user" : "assistant"}`;
+      bubble.textContent = message.content;
+      if (message.id) {
+        const meta = document.createElement("div");
+        meta.className = "message-meta";
+        meta.textContent = message.emotion ? `${message.emotion} / ${message.mode || ""}` : "";
+        bubble.appendChild(meta);
+      }
+      els.chatLog.appendChild(bubble);
+      els.chatLog.scrollTop = els.chatLog.scrollHeight;
+    }
+
+    async function loadArchive() {
+      const scope = els.archiveScope.value === "all" ? "all" : state.sessionId;
+      const data = await api(`/api/history?user_id=${state.userId}&session_id=${scope}&limit=80`);
+      els.archiveCount.textContent = `${data.total || 0} saved`;
+      renderArchiveItems(data.messages || []);
+    }
+
+    async function searchArchive() {
+      const query = els.archiveSearch.value.trim();
+      if (!query) {
+        await loadArchive();
+        return;
+      }
+      const scope = els.archiveScope.value === "all" ? "all" : state.sessionId;
+      const data = await api(`/api/history/search?user_id=${state.userId}&session_id=${scope}&q=${encodeURIComponent(query)}&limit=40`);
+      els.archiveCount.textContent = `${(data.results || []).length} found`;
+      renderArchiveItems(data.results || []);
+    }
+
+    function renderArchiveItems(messages) {
+      els.archiveList.innerHTML = "";
+      if (messages.length === 0) {
+        els.archiveList.appendChild(emptyItem("No archive messages."));
+        return;
+      }
+      for (const message of messages) {
+        const item = document.createElement("div");
+        item.className = `item ${message.pinned ? "pinned" : ""}`;
+        const text = document.createElement("div");
+        text.textContent = `${message.role}: ${message.content}`;
+        const meta = document.createElement("small");
+        meta.textContent = `${message.session_id || "session"} ${message.created_at || ""} ${message.score ? "score " + message.score : ""}`;
+        const actions = document.createElement("div");
+        actions.className = "item-actions";
+        actions.appendChild(actionButton(message.pinned ? "Unpin" : "Pin", () => toggleMessagePin(message)));
+        actions.appendChild(actionButton("Delete", () => deleteArchiveMessage(message), "danger"));
+        item.append(text, meta, actions);
+        els.archiveList.appendChild(item);
+      }
+    }
+
+    async function toggleMessagePin(message) {
+      await api(`/api/history/${message.id}/pin`, {
+        method: "PATCH",
+        body: { user_id: state.userId, pinned: !message.pinned }
+      });
+      await loadArchive();
+    }
+
+    async function deleteArchiveMessage(message) {
+      if (!confirm("Delete this message from local history?")) return;
+      await api(`/api/history/${message.id}?user_id=${state.userId}`, { method: "DELETE" });
+      await refreshForSession();
+    }
+
+    async function loadMemories() {
+      const data = await api(`/api/memories?user_id=${state.userId}`);
+      const memories = data.memories || [];
+      els.memoryCount.textContent = `${memories.length} saved`;
+      els.memoryList.innerHTML = "";
+      if (memories.length === 0) {
+        els.memoryList.appendChild(emptyItem("No extracted memories."));
+        return;
+      }
+      for (const memory of memories) {
+        const item = document.createElement("div");
+        item.className = `item ${memory.pinned ? "pinned" : ""}`;
+        const text = document.createElement("div");
+        text.textContent = memory.content;
+        const meta = document.createElement("small");
+        meta.textContent = `importance ${memory.importance} ${memory.created_at}`;
+        const actions = document.createElement("div");
+        actions.className = "item-actions";
+        actions.appendChild(actionButton(memory.pinned ? "Unpin" : "Pin", () => toggleMemoryPin(memory)));
+        actions.appendChild(actionButton("Delete", () => deleteMemory(memory), "danger"));
+        item.append(text, meta, actions);
+        els.memoryList.appendChild(item);
+      }
+    }
+
+    async function toggleMemoryPin(memory) {
+      await api(`/api/memories/${memory.id}/pin`, {
+        method: "PATCH",
+        body: { user_id: state.userId, pinned: !memory.pinned }
+      });
+      await loadMemories();
+    }
+
+    async function deleteMemory(memory) {
+      if (!confirm("Delete this memory?")) return;
+      await api(`/api/memories/${memory.id}?user_id=${state.userId}`, { method: "DELETE" });
+      await loadMemories();
+    }
+
+    async function loadCharacter() {
+      const data = await api("/api/character");
+      state.character = data.character;
+      renderCharacterForm();
+    }
+
+    function renderCharacterForm() {
+      const character = state.character;
+      els.characterName.value = character.name || "";
+      els.characterPersonality.value = character.personality || "";
+      els.characterTone.value = character.base_tone || "";
+      els.speakingStyle.value = (character.speaking_style || []).join("\n");
+      els.boundaries.value = (character.boundaries || []).join("\n");
+      els.modeSelect.innerHTML = "";
+      for (const mode of Object.keys(character.response_modes || {})) {
+        const option = document.createElement("option");
+        option.value = mode;
+        option.textContent = mode;
+        els.modeSelect.appendChild(option);
+      }
+      if (!state.activeMode || !character.response_modes[state.activeMode]) {
+        state.activeMode = els.modeSelect.value;
+      }
+      els.modeSelect.value = state.activeMode;
+      renderModeEditor();
+    }
+
+    function renderModeEditor() {
+      const mode = state.character.response_modes[state.activeMode];
+      if (!mode) return;
+      els.modeTone.value = mode.tone || "";
+      els.modeMust.value = (mode.must_do || []).join("\n");
+      els.modeAvoid.value = (mode.avoid || []).join("\n");
+    }
+
+    function saveCurrentModeDraft() {
+      if (!state.character || !state.activeMode) return;
+      state.character.response_modes[state.activeMode] = {
+        tone: els.modeTone.value.trim(),
+        must_do: linesFromText(els.modeMust.value),
+        avoid: linesFromText(els.modeAvoid.value)
+      };
+    }
+
+    async function exportHistory() {
+      const response = await fetch(`/api/export?user_id=${state.userId}`);
+      const data = await response.blob();
+      const url = URL.createObjectURL(data);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "ponponchan-history.json";
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function rebuildIndex() {
+      els.rebuildIndex.disabled = true;
+      els.rebuildIndex.textContent = "Indexing";
+      try {
+        const data = await api(`/api/embeddings/backfill?user_id=${state.userId}&session_id=all&limit=500`, {
+          method: "POST"
+        });
+        els.chatStatus.textContent = `Indexed ${data.embedded} messages`;
+      } finally {
+        els.rebuildIndex.disabled = false;
+        els.rebuildIndex.textContent = "Build Recall Index";
+      }
+    }
+
+    async function api(path, options = {}) {
+      const response = await fetch(path, {
+        method: options.method || "GET",
+        headers: options.body ? { "Content-Type": "application/json" } : undefined,
+        body: options.body ? JSON.stringify(options.body) : undefined
+      });
+      if (!response.ok) {
+        let message = "Request failed";
+        try {
+          const error = await response.json();
+          message = error.detail || message;
+        } catch {}
+        throw new Error(message);
+      }
+      return response.json();
+    }
+
+    function actionButton(label, handler, extra = "") {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `mini ${extra}`.trim();
+      button.textContent = label;
+      button.addEventListener("click", handler);
+      return button;
+    }
+
+    function emptyItem(text) {
+      const item = document.createElement("div");
+      item.className = "item";
+      item.textContent = text;
+      return item;
+    }
+
+    function linesFromText(text) {
+      return text.split("\n").map((line) => line.trim()).filter(Boolean);
+    }
+
+    function sessionTitle() {
+      const session = state.sessions.find((item) => item.id === state.sessionId);
+      return session ? session.title : "General";
+    }
+
+    init();
   </script>
 </body>
 </html>
