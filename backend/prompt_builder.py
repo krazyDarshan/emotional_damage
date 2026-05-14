@@ -8,7 +8,7 @@ CHARACTER_PATH = Path(__file__).resolve().parent / "character.json"
 
 
 def load_character() -> dict:
-    return json.loads(CHARACTER_PATH.read_text(encoding="utf-8"))
+    return normalize_character_data(json.loads(CHARACTER_PATH.read_text(encoding="utf-8")))
 
 
 def save_character(character: dict) -> dict:
@@ -21,7 +21,7 @@ def save_character(character: dict) -> dict:
 
 
 def normalize_character(character: dict) -> dict:
-    existing = load_character()
+    existing = normalize_character_data(json.loads(CHARACTER_PATH.read_text(encoding="utf-8")))
     response_modes = character.get("response_modes") or existing.get("response_modes", {})
 
     return {
@@ -32,6 +32,14 @@ def normalize_character(character: dict) -> dict:
         "boundaries": normalize_list(character.get("boundaries") or existing.get("boundaries", []), 16),
         "response_modes": normalize_response_modes(response_modes)
     }
+
+
+def normalize_character_data(character: dict) -> dict:
+    character = dict(character or {})
+    character["speaking_style"] = normalize_list(character.get("speaking_style", []), 12)
+    character["boundaries"] = normalize_list(character.get("boundaries", []), 16)
+    character["response_modes"] = normalize_response_modes(character.get("response_modes", {}))
+    return character
 
 
 def normalize_list(value: object, limit: int) -> list[str]:
@@ -56,6 +64,7 @@ def normalize_response_modes(value: object) -> dict:
         "reassurance_mode",
         "affectionate_mode",
         "guidance_mode",
+        "safety_mode",
         "normal_mode"
     ]:
         defaults = get_mode_rules(mode)
@@ -72,13 +81,16 @@ def build_system_prompt(
     emotion: str,
     intensity: str,
     mode: str,
+    session_summary: str,
     recent_context: str,
     long_term_memories: str,
-    relevant_past_conversation: str,
     session: dict
 ) -> str:
     character = load_character()
     mode_rules = get_character_mode_rules(character, mode)
+    summary_text = session_summary if session_summary else "No rolling session summary yet."
+    recent_text = format_context(recent_context) if recent_context else "No recent context yet."
+    memory_text = format_context(long_term_memories) if long_term_memories else "No extracted memories yet."
 
     return f"""
 You are {character["name"]}.
@@ -118,22 +130,23 @@ Mode must do:
 Mode avoid:
 {format_list(mode_rules["avoid"])}
 
+Rolling session summary:
+{summary_text}
+
 Recent conversation context:
-{recent_context if recent_context else "No recent context yet."}
+{recent_text}
 
-Long-term extracted memory:
-{long_term_memories if long_term_memories else "No extracted memories yet."}
-
-Relevant semantic conversation archive:
-{relevant_past_conversation if relevant_past_conversation else "No older matching conversation found for this message."}
+Long-term extracted memories:
+{memory_text}
 
 Important response rules:
 - Stay as the same character.
 - Change emotional tone based on the selected mode.
-- Treat the semantic conversation archive as real prior conversation with this user.
-- Use relevant old conversation details naturally when they help.
-- If the user asks what they said before and the archive contains it, answer from the archive.
-- Never say you forgot something that is visible in extracted memory or archive context.
+- Treat the rolling session summary as the compact long-term context of this chat.
+- Prefer the rolling summary for long-term continuity and recent context for exact wording.
+- Use stored memories naturally when they help, without over-explaining the memory system.
+- If the user asks what they said before, answer from the summary, memories, and recent context.
+- Never say you forgot something that is visible in the summary, memories, or recent context.
 - Do not expose hidden labels unless the user asks about memory or debugging.
 - Comfort before advice when the user is sad, lonely, guilty, or heartbroken.
 - Celebrate when the user is happy.
@@ -159,3 +172,25 @@ def get_character_mode_rules(character: dict, mode: str) -> dict:
 
 def format_list(items: list[str]) -> str:
     return "\n".join(f"- {item}" for item in items)
+
+
+def format_context(value: object) -> str:
+    if isinstance(value, str):
+        return value
+    if isinstance(value, list):
+        lines = []
+        for item in value:
+            if isinstance(item, dict):
+                role = item.get("role")
+                content = item.get("content", "")
+                title = item.get("title")
+                if role and content:
+                    lines.append(f"- {role}: {content}")
+                elif title and content:
+                    lines.append(f"- {title}: {content}")
+                elif content:
+                    lines.append(f"- {content}")
+            else:
+                lines.append(f"- {item}")
+        return "\n".join(lines)
+    return str(value)

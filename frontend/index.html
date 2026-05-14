@@ -3,995 +3,1641 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ponponchan</title>
+  <title>Ponponchan Emotional AI</title>
   <style>
     :root {
-      color-scheme: dark;
-      --bg: #101216;
-      --surface: #171b21;
-      --panel: #20242d;
-      --panel-soft: #151a1e;
-      --line: #333a46;
-      --text: #f4f0e8;
-      --muted: #aeb6c2;
-      --teal: #4cc9a6;
-      --blue: #6da7ff;
-      --amber: #f3b95f;
-      --rose: #ef6f83;
-      --shadow: rgba(0, 0, 0, 0.28);
+      --bg: #f5f1e9;
+      --surface: #fffaf2;
+      --surface-2: #f0e7d8;
+      --ink: #182629;
+      --muted: #64706b;
+      --line: #ded3c2;
+      --brand: #174c5a;
+      --brand-2: #2f7d64;
+      --accent: #b84d3a;
+      --gold: #9a6b14;
+      --danger: #a83232;
+      --shadow: 0 18px 50px rgba(24, 38, 41, 0.12);
+      --radius: 8px;
     }
 
     * {
       box-sizing: border-box;
     }
 
+    html,
     body {
-      margin: 0;
-      min-height: 100vh;
-      background: var(--bg);
-      color: var(--text);
-      font-family: Arial, Helvetica, sans-serif;
-      display: grid;
-      grid-template-rows: auto 1fr;
+      height: 100%;
     }
 
-    button, input, textarea, select {
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
       font: inherit;
+      letter-spacing: 0;
     }
 
     button {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--panel);
-      color: var(--text);
-      min-height: 36px;
-      padding: 0 12px;
       cursor: pointer;
     }
 
-    button:hover {
-      border-color: var(--blue);
+    .hidden {
+      display: none !important;
     }
 
-    button:disabled {
-      cursor: wait;
-      opacity: 0.55;
-    }
-
-    .primary {
-      background: var(--teal);
-      border-color: var(--teal);
-      color: #061a14;
-      font-weight: 700;
-    }
-
-    .danger {
-      border-color: #7c3944;
-      color: #ffd7dd;
-    }
-
-    .topbar {
-      height: 62px;
-      border-bottom: 1px solid var(--line);
-      background: #0d1014;
+    .auth-view {
+      min-height: 100vh;
       display: grid;
-      grid-template-columns: auto 1fr auto;
-      align-items: center;
-      gap: 16px;
-      padding: 0 18px;
+      place-items: center;
+      padding: 28px;
+      background:
+        linear-gradient(135deg, rgba(23, 76, 90, 0.11), rgba(184, 77, 58, 0.08)),
+        var(--bg);
     }
 
-    .brand {
+    .auth-panel {
+      width: min(960px, 100%);
+      min-height: 560px;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .auth-copy {
       display: flex;
-      align-items: center;
-      gap: 10px;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 20px;
+      padding: 42px;
+      color: #fdf8ef;
+      background:
+        linear-gradient(160deg, rgba(24, 38, 41, 0.92), rgba(23, 76, 90, 0.82)),
+        url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80") center/cover;
+    }
+
+    .brand-mark {
+      width: 56px;
+      height: 56px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.34);
+      border-radius: var(--radius);
+      background: rgba(255, 250, 242, 0.12);
+      font-size: 28px;
       font-weight: 800;
     }
 
-    .mark {
-      width: 28px;
-      height: 28px;
-      display: grid;
-      place-items: center;
-      border-radius: 8px;
-      background: var(--teal);
-      color: #061a14;
-      font-weight: 900;
+    .auth-copy h1 {
+      max-width: 470px;
+      margin: 0;
+      font-size: clamp(42px, 7vw, 76px);
+      line-height: 0.92;
     }
 
-    .metrics {
+    .auth-copy p {
+      max-width: 440px;
+      margin: 0;
+      color: rgba(255, 250, 242, 0.82);
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    .auth-card {
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      min-width: 0;
+      flex-direction: column;
+      justify-content: center;
+      gap: 18px;
+      padding: 36px;
+      background: var(--surface);
     }
 
-    .metric {
+    .auth-card h2 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .auth-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .auth-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      padding: 4px;
       border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-2);
+    }
+
+    .auth-tabs button,
+    .tab {
+      border: 0;
+      border-radius: 6px;
+      color: var(--muted);
+      background: transparent;
+      padding: 10px 12px;
+    }
+
+    .auth-tabs button.active,
+    .tab.active {
+      color: var(--ink);
       background: var(--surface);
-      border-radius: 8px;
-      padding: 7px 10px;
-      color: var(--muted);
-      font-size: 12px;
-      min-width: 96px;
+      box-shadow: 0 1px 0 rgba(24, 38, 41, 0.08);
     }
 
-    .metric strong {
-      display: block;
-      color: var(--text);
-      margin-top: 2px;
-      overflow-wrap: anywhere;
-    }
-
-    .top-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .app {
-      min-height: 0;
+    .form {
       display: grid;
-      grid-template-columns: 250px minmax(360px, 1fr) 380px;
-    }
-
-    .sidebar, .inspector {
-      min-height: 0;
-      overflow: auto;
-      background: var(--surface);
-      border-right: 1px solid var(--line);
-      padding: 14px;
-    }
-
-    .inspector {
-      border-right: 0;
-      border-left: 1px solid var(--line);
-    }
-
-    .section-title {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: var(--muted);
-      font-size: 12px;
-      text-transform: uppercase;
-      margin: 0 0 10px;
-    }
-
-    .session-list {
-      display: grid;
-      gap: 8px;
-    }
-
-    .session {
-      width: 100%;
-      text-align: left;
-      min-height: 58px;
-      display: grid;
-      gap: 4px;
-      background: var(--panel-soft);
-    }
-
-    .session.active {
-      border-color: var(--teal);
-      box-shadow: inset 3px 0 0 var(--teal);
-    }
-
-    .session span {
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .new-session {
-      margin-top: 14px;
-      display: grid;
-      gap: 8px;
+      gap: 12px;
     }
 
     .field {
       display: grid;
-      gap: 6px;
+      gap: 7px;
     }
 
-    label {
-      color: var(--muted);
-      font-size: 12px;
+    .field label {
+      color: #45514d;
+      font-size: 13px;
+      font-weight: 700;
     }
 
-    input, textarea, select {
+    input,
+    textarea,
+    select {
       width: 100%;
       border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #0e1217;
-      color: var(--text);
-      padding: 10px 11px;
+      border-radius: var(--radius);
+      color: var(--ink);
+      background: #fffdfa;
       outline: none;
     }
 
+    input,
+    select {
+      min-height: 42px;
+      padding: 0 12px;
+    }
+
     textarea {
+      min-height: 90px;
       resize: vertical;
-      min-height: 80px;
+      padding: 11px 12px;
       line-height: 1.45;
     }
 
-    input:focus, textarea:focus, select:focus {
-      border-color: var(--blue);
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--brand-2);
+      box-shadow: 0 0 0 3px rgba(47, 125, 100, 0.15);
     }
 
-    .chat-area {
+    .primary,
+    .secondary,
+    .ghost,
+    .danger {
+      min-height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: var(--radius);
+      padding: 0 14px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .primary {
+      border: 1px solid var(--brand);
+      color: #fffaf2;
+      background: var(--brand);
+    }
+
+    .primary:hover {
+      background: #123d48;
+    }
+
+    .secondary {
+      border: 1px solid var(--line);
+      color: var(--ink);
+      background: var(--surface);
+    }
+
+    .secondary:hover {
+      border-color: #c8b8a2;
+      background: #fffdfa;
+    }
+
+    .ghost {
+      border: 1px solid transparent;
+      color: var(--muted);
+      background: transparent;
+    }
+
+    .ghost:hover {
+      color: var(--ink);
+      background: rgba(23, 76, 90, 0.07);
+    }
+
+    .danger {
+      border: 1px solid rgba(168, 50, 50, 0.26);
+      color: var(--danger);
+      background: rgba(168, 50, 50, 0.06);
+    }
+
+    .error {
+      min-height: 20px;
+      color: var(--danger);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .app-view {
+      height: 100vh;
       min-height: 0;
       display: grid;
-      grid-template-rows: auto 1fr auto;
-      background: #11141a;
+      grid-template-rows: 62px minmax(0, 1fr);
+      overflow: hidden;
+      background: var(--bg);
     }
 
-    .chat-head {
-      border-bottom: 1px solid var(--line);
-      padding: 14px 18px;
+    .topbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 250, 242, 0.92);
+      backdrop-filter: blur(12px);
+      z-index: 4;
     }
 
-    .chat-title h1 {
-      margin: 0 0 4px;
+    .top-left,
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .app-logo {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: var(--radius);
+      color: #fffaf2;
+      background: var(--brand);
       font-size: 20px;
-      letter-spacing: 0;
+      font-weight: 900;
+      flex: 0 0 auto;
     }
 
-    .chat-title p {
-      margin: 0;
+    .title-stack {
+      min-width: 0;
+    }
+
+    .title-stack strong,
+    .chat-heading strong {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .title-stack span,
+    .chat-heading span {
+      display: block;
       color: var(--muted);
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .main-grid {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 292px minmax(0, 1fr) 360px;
+      overflow: hidden;
+    }
+
+    .sidebar,
+    .inspector {
+      min-height: 0;
+      overflow-y: auto;
+      background: var(--surface);
+    }
+
+    .sidebar {
+      border-right: 1px solid var(--line);
+    }
+
+    .inspector {
+      border-left: 1px solid var(--line);
+    }
+
+    .panel-section {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .panel-title h3 {
+      margin: 0;
+      font-size: 14px;
+      text-transform: uppercase;
+      color: #45514d;
+    }
+
+    .sessions-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .session-button {
+      width: 100%;
+      display: grid;
+      gap: 4px;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      background: transparent;
+      padding: 11px 12px;
+      text-align: left;
+    }
+
+    .session-button:hover {
+      background: rgba(23, 76, 90, 0.06);
+    }
+
+    .session-button.active {
+      border-color: rgba(23, 76, 90, 0.24);
+      background: #eaf1ed;
+    }
+
+    .session-button strong {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 14px;
+    }
+
+    .session-button span {
+      display: -webkit-box;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      overflow: hidden;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .quick-prompts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .quick-prompts button {
+      min-height: 44px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: #33413d;
+      background: #fffdfa;
+      font-size: 13px;
+      text-align: left;
+      padding: 8px 10px;
+    }
+
+    .quick-prompts button:hover {
+      border-color: var(--brand-2);
+    }
+
+    .chat-stage {
+      min-width: 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255, 250, 242, 0.78), rgba(245, 241, 233, 0.92)),
+        var(--bg);
+    }
+
+    .chat-header {
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 14px 22px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 250, 242, 0.72);
+      flex: 0 0 auto;
+    }
+
+    .chat-heading {
+      min-width: 0;
+    }
+
+    .metrics {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .metric {
+      min-width: 92px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 250, 242, 0.8);
+      padding: 7px 9px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .metric strong {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
       font-size: 13px;
     }
 
-    .chat-log {
+    .chat-scroll {
+      flex: 1;
       min-height: 0;
       overflow-y: auto;
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+      padding: 24px 22px 18px;
+      scroll-behavior: smooth;
+    }
+
+    .chat-scroll::-webkit-scrollbar,
+    .sidebar::-webkit-scrollbar,
+    .inspector::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .chat-scroll::-webkit-scrollbar-track,
+    .sidebar::-webkit-scrollbar-track,
+    .inspector::-webkit-scrollbar-track {
+      background: rgba(222, 211, 194, 0.25);
+    }
+
+    .chat-scroll::-webkit-scrollbar-thumb,
+    .sidebar::-webkit-scrollbar-thumb,
+    .inspector::-webkit-scrollbar-thumb {
+      border: 2px solid transparent;
+      border-radius: 999px;
+      background: rgba(100, 112, 107, 0.48);
+      background-clip: padding-box;
+    }
+
+    .message-list {
+      width: min(820px, 100%);
+      display: grid;
+      gap: 13px;
+      margin: 0 auto;
+      padding-bottom: 12px;
+    }
+
+    .empty-state {
+      width: min(640px, 100%);
+      margin: 12vh auto 0;
+      display: grid;
+      gap: 14px;
+      text-align: center;
+    }
+
+    .empty-state h2 {
+      margin: 0;
+      font-size: clamp(30px, 5vw, 54px);
+      line-height: 1;
+    }
+
+    .empty-state p {
+      margin: 0 auto;
+      max-width: 520px;
+      color: var(--muted);
+      line-height: 1.6;
     }
 
     .message {
-      width: min(78%, 720px);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 12px 14px;
-      line-height: 1.46;
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-      box-shadow: 0 8px 22px var(--shadow);
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
     }
 
     .message.user {
-      align-self: flex-end;
-      background: #172d39;
-      border-color: #27556c;
+      justify-content: flex-end;
     }
 
-    .message.assistant {
-      align-self: flex-start;
-      background: var(--panel);
+    .avatar {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #fffaf2;
+      background: var(--brand);
+      font-size: 13px;
+      font-weight: 900;
+      flex: 0 0 auto;
     }
 
-    .message-meta {
-      margin-top: 8px;
+    .message.user .avatar {
+      order: 2;
+      background: var(--accent);
+    }
+
+    .bubble {
+      max-width: min(640px, 82%);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 12px 14px;
+      line-height: 1.52;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      box-shadow: 0 8px 24px rgba(24, 38, 41, 0.06);
+    }
+
+    .message.user .bubble {
+      color: #fffaf2;
+      border-color: rgba(184, 77, 58, 0.12);
+      background: var(--accent);
+      box-shadow: none;
+    }
+
+    .message.typing .bubble {
       color: var(--muted);
-      font-size: 11px;
+      font-style: italic;
     }
 
     .composer {
+      flex: 0 0 auto;
       border-top: 1px solid var(--line);
-      padding: 14px 18px;
+      background: rgba(255, 250, 242, 0.9);
+      padding: 14px 22px 18px;
+    }
+
+    .composer-inner {
+      width: min(820px, 100%);
       display: grid;
-      grid-template-columns: 1fr auto;
       gap: 10px;
-      background: #0d1014;
+      margin: 0 auto;
+    }
+
+    .composer-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: end;
     }
 
     .composer textarea {
-      min-height: 54px;
-      max-height: 180px;
+      min-height: 56px;
+      max-height: 170px;
       resize: none;
+      border-color: #d0c2ad;
+      background: #fffdfa;
+    }
+
+    .status-line {
+      min-height: 19px;
+      color: var(--muted);
+      font-size: 12px;
     }
 
     .tabs {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 6px;
-      margin-bottom: 12px;
+      padding: 12px 12px 0;
     }
 
-    .tab.active {
-      border-color: var(--amber);
-      color: var(--amber);
-    }
-
-    .panel {
+    .tab-panel {
       display: none;
-      gap: 12px;
+      padding: 14px 16px 22px;
     }
 
-    .panel.active {
+    .tab-panel.active {
       display: grid;
+      gap: 14px;
+    }
+
+    .summary-box,
+    .memory-card,
+    .note-box {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fffdfa;
+      padding: 12px;
+    }
+
+    .summary-box {
+      min-height: 180px;
+      color: #34413d;
+      line-height: 1.52;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
     }
 
     .row {
       display: flex;
-      gap: 8px;
       align-items: center;
-    }
-
-    .row input, .row select {
-      min-width: 0;
-    }
-
-    .list {
-      display: grid;
       gap: 8px;
-      max-height: 320px;
-      overflow: auto;
-    }
-
-    .item {
-      border: 1px solid var(--line);
-      background: var(--panel-soft);
-      border-radius: 8px;
-      padding: 10px;
-      display: grid;
-      gap: 8px;
-    }
-
-    .item.pinned {
-      border-color: var(--amber);
-    }
-
-    .item small {
-      color: var(--muted);
-      overflow-wrap: anywhere;
-    }
-
-    .item-actions {
-      display: flex;
       flex-wrap: wrap;
-      gap: 6px;
     }
 
-    .mini {
-      min-height: 30px;
-      padding: 0 9px;
-      font-size: 12px;
+    .row.between {
+      justify-content: space-between;
     }
 
-    .studio-grid {
+    .memory-list {
       display: grid;
       gap: 10px;
     }
 
-    .status-line {
-      color: var(--muted);
-      font-size: 12px;
-      min-height: 18px;
+    .memory-card {
+      display: grid;
+      gap: 8px;
     }
 
-    @media (max-width: 1150px) {
-      .app {
-        grid-template-columns: 220px 1fr;
+    .memory-card h4 {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .memory-card p {
+      margin: 0;
+      color: #3b4945;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: rgba(255, 250, 242, 0.78);
+      padding: 0 9px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .editor-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .loading {
+      opacity: 0.72;
+      pointer-events: none;
+    }
+
+    @media (max-width: 1120px) {
+      .main-grid {
+        grid-template-columns: 260px minmax(0, 1fr);
       }
 
       .inspector {
-        grid-column: 1 / -1;
-        border-left: 0;
-        border-top: 1px solid var(--line);
-        max-height: 42vh;
+        display: none;
       }
     }
 
     @media (max-width: 760px) {
-      .topbar {
+      .auth-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .auth-copy {
+        min-height: 260px;
+        padding: 28px;
+      }
+
+      .auth-card {
+        padding: 24px;
+      }
+
+      .app-view {
         height: auto;
+        min-height: 100vh;
+        overflow: visible;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+      }
+
+      .main-grid {
         grid-template-columns: 1fr;
-        padding: 12px;
+        overflow: visible;
       }
 
-      .app {
+      .sidebar,
+      .inspector {
+        display: block;
+        max-height: none;
+        overflow: visible;
+        border: 0;
+      }
+
+      .chat-stage {
+        min-height: 76vh;
+      }
+
+      .chat-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .metrics {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .composer-row {
         grid-template-columns: 1fr;
       }
 
-      .sidebar {
-        max-height: 220px;
-        border-right: 0;
-        border-bottom: 1px solid var(--line);
+      .message-list,
+      .composer-inner {
+        width: 100%;
       }
 
-      .message {
-        width: 94%;
+      .bubble {
+        max-width: 88%;
       }
 
-      .composer {
-        grid-template-columns: 1fr;
+      .top-right .pill {
+        display: none;
       }
     }
   </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <div class="mark">p</div>
-      <div>ponponchan</div>
-    </div>
-    <div class="metrics">
-      <div class="metric">Emotion<strong id="metric-emotion">neutral</strong></div>
-      <div class="metric">Mode<strong id="metric-mode">normal_mode</strong></div>
-      <div class="metric">Recall<strong id="metric-recall">0 archive</strong></div>
-      <div class="metric">Confidence<strong id="metric-confidence">0%</strong></div>
-    </div>
-    <div class="top-actions">
-      <button id="rebuild-index" type="button">Build Recall Index</button>
-      <button id="export-history" type="button">Export</button>
-    </div>
-  </header>
-
-  <div class="app">
-    <aside class="sidebar">
-      <div class="section-title">Sessions</div>
-      <div id="session-list" class="session-list"></div>
-
-      <form id="new-session-form" class="new-session">
-        <div class="field">
-          <label for="new-session-title">New Session</label>
-          <input id="new-session-title" placeholder="chat name">
+  <section id="authView" class="auth-view">
+    <div class="auth-panel">
+      <div class="auth-copy">
+        <div class="brand-mark">P</div>
+        <div>
+          <h1>Ponponchan</h1>
+          <p>Local emotional AI with private sessions, compact memory, and character modes.</p>
         </div>
-        <button class="primary" type="submit">Create</button>
-      </form>
-    </aside>
-
-    <main class="chat-area">
-      <div class="chat-head">
-        <div class="chat-title">
-          <h1 id="session-title">General</h1>
-          <p id="session-description">Everyday conversation and emotional check-ins.</p>
-        </div>
-        <div class="status-line" id="chat-status"></div>
       </div>
 
-      <section id="chat-log" class="chat-log" aria-live="polite"></section>
+      <div class="auth-card">
+        <div>
+          <h2 id="authTitle">Welcome back</h2>
+          <p id="authSubtitle">Sign in to continue.</p>
+        </div>
+        <div class="auth-tabs" role="tablist">
+          <button id="loginTab" class="active" type="button">Login</button>
+          <button id="registerTab" type="button">Register</button>
+        </div>
+        <form id="authForm" class="form">
+          <div id="displayNameField" class="field hidden">
+            <label for="displayName">Display name</label>
+            <input id="displayName" autocomplete="name" placeholder="Darsh">
+          </div>
+          <div class="field">
+            <label for="username">Username</label>
+            <input id="username" autocomplete="username" placeholder="darsh">
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" type="password" autocomplete="current-password" placeholder="Minimum 6 characters">
+          </div>
+          <button id="authSubmit" class="primary" type="submit">Login</button>
+          <div id="authError" class="error" role="alert"></div>
+        </form>
+      </div>
+    </div>
+  </section>
 
-      <form id="chat-form" class="composer">
-        <textarea id="message-input" placeholder="Type to ponponchan..." autocomplete="off"></textarea>
-        <button id="send-message" class="primary" type="submit">Send</button>
-      </form>
+  <section id="appView" class="app-view hidden">
+    <header class="topbar">
+      <div class="top-left">
+        <div class="app-logo">P</div>
+        <div class="title-stack">
+          <strong>Ponponchan</strong>
+          <span id="storagePolicy">summary memory active</span>
+        </div>
+      </div>
+      <div class="top-right">
+        <span id="userPill" class="pill">local user</span>
+        <button id="exportBtn" class="secondary" type="button">Export</button>
+        <button id="logoutBtn" class="ghost" type="button">Logout</button>
+      </div>
+    </header>
+
+    <main class="main-grid">
+      <aside class="sidebar">
+        <section class="panel-section">
+          <div class="panel-title">
+            <h3>Chats</h3>
+            <button id="newSessionBtn" class="secondary" type="button">New</button>
+          </div>
+          <form id="newSessionForm" class="form hidden">
+            <div class="field">
+              <label for="sessionTitle">Title</label>
+              <input id="sessionTitle" placeholder="relationship talk">
+            </div>
+            <div class="field">
+              <label for="sessionDescription">Purpose</label>
+              <textarea id="sessionDescription" placeholder="What this chat should remember"></textarea>
+            </div>
+            <button class="primary" type="submit">Create chat</button>
+          </form>
+          <div id="sessionsList" class="sessions-list"></div>
+        </section>
+
+        <section class="panel-section">
+          <div class="panel-title">
+            <h3>Check in</h3>
+          </div>
+          <div class="quick-prompts">
+            <button type="button" data-prompt="I am feeling sad and I need comfort.">Sad</button>
+            <button type="button" data-prompt="I am happy today. Celebrate with me.">Happy</button>
+            <button type="button" data-prompt="I am angry and need to calm down.">Angry</button>
+            <button type="button" data-prompt="I am confused about my relationship.">Confused</button>
+          </div>
+        </section>
+      </aside>
+
+      <section class="chat-stage">
+        <header class="chat-header">
+          <div class="chat-heading">
+            <strong id="activeSessionTitle">Choose a chat</strong>
+            <span id="activeSessionDescription">Your summary memory will follow the selected chat.</span>
+          </div>
+          <div class="metrics">
+            <div class="metric">
+              <span>Emotion</span>
+              <strong id="emotionMetric">neutral</strong>
+            </div>
+            <div class="metric">
+              <span>Mode</span>
+              <strong id="modeMetric">normal</strong>
+            </div>
+            <div class="metric">
+              <span>Memory</span>
+              <strong id="summaryMetric">summary</strong>
+            </div>
+          </div>
+        </header>
+
+        <div id="chatScroll" class="chat-scroll">
+          <div id="messageList" class="message-list"></div>
+        </div>
+
+        <form id="chatForm" class="composer">
+          <div class="composer-inner">
+            <div class="composer-row">
+              <textarea id="messageInput" placeholder="Talk to Ponponchan..." rows="2"></textarea>
+              <button id="sendBtn" class="primary" type="submit">Send</button>
+            </div>
+            <div id="statusLine" class="status-line"></div>
+          </div>
+        </form>
+      </section>
+
+      <aside class="inspector">
+        <div class="tabs" role="tablist">
+          <button class="tab active" type="button" data-tab="summaryPanel">Summary</button>
+          <button class="tab" type="button" data-tab="memoryPanel">Memory</button>
+          <button class="tab" type="button" data-tab="characterPanel">Character</button>
+        </div>
+
+        <section id="summaryPanel" class="tab-panel active">
+          <div class="row between">
+            <span class="pill" id="summaryUpdated">not summarized yet</span>
+            <button id="rebuildSummaryBtn" class="secondary" type="button">Summarize</button>
+          </div>
+          <div id="summaryBox" class="summary-box">No summary yet.</div>
+          <div class="note-box">
+            Raw chat text is kept only as a small recent window. Older context is compacted into this summary.
+          </div>
+          <button id="clearDataBtn" class="danger" type="button">Clear saved text</button>
+        </section>
+
+        <section id="memoryPanel" class="tab-panel">
+          <form id="memoryForm" class="form">
+            <div class="field">
+              <label for="memoryTitle">Title</label>
+              <input id="memoryTitle" placeholder="important personal note">
+            </div>
+            <div class="field">
+              <label for="memoryContent">Memory</label>
+              <textarea id="memoryContent" placeholder="Something Ponponchan should keep remembering"></textarea>
+            </div>
+            <button class="primary" type="submit">Pin memory</button>
+          </form>
+          <div id="memoryList" class="memory-list"></div>
+        </section>
+
+        <section id="characterPanel" class="tab-panel">
+          <form id="characterForm" class="editor-grid">
+            <div class="field">
+              <label for="characterName">Name</label>
+              <input id="characterName">
+            </div>
+            <div class="field">
+              <label for="personality">Personality</label>
+              <textarea id="personality"></textarea>
+            </div>
+            <div class="field">
+              <label for="baseTone">Base tone</label>
+              <textarea id="baseTone"></textarea>
+            </div>
+            <div class="mini-grid">
+              <div class="field">
+                <label for="speakingStyle">Speaking style</label>
+                <textarea id="speakingStyle"></textarea>
+              </div>
+              <div class="field">
+                <label for="boundaries">Boundaries</label>
+                <textarea id="boundaries"></textarea>
+              </div>
+            </div>
+            <div class="field">
+              <label for="modeEditor">Mode editor</label>
+              <select id="modeEditor"></select>
+            </div>
+            <div class="field">
+              <label for="modeTone">Mode tone</label>
+              <input id="modeTone">
+            </div>
+            <div class="mini-grid">
+              <div class="field">
+                <label for="modeMustDo">Must do</label>
+                <textarea id="modeMustDo"></textarea>
+              </div>
+              <div class="field">
+                <label for="modeAvoid">Avoid</label>
+                <textarea id="modeAvoid"></textarea>
+              </div>
+            </div>
+            <button class="primary" type="submit">Save character</button>
+          </form>
+        </section>
+      </aside>
     </main>
-
-    <aside class="inspector">
-      <div class="tabs">
-        <button class="tab active" data-panel="archive-panel" type="button">Archive</button>
-        <button class="tab" data-panel="memory-panel" type="button">Memory</button>
-        <button class="tab" data-panel="studio-panel" type="button">Character</button>
-      </div>
-
-      <section id="archive-panel" class="panel active">
-        <div class="section-title">
-          <span>Conversation Archive</span>
-          <span id="archive-count">0 saved</span>
-        </div>
-        <div class="row">
-          <input id="archive-search" placeholder="Search old conversation">
-          <button id="archive-search-button" type="button">Search</button>
-        </div>
-        <div class="row">
-          <select id="archive-scope">
-            <option value="current">Current session</option>
-            <option value="all">All sessions</option>
-          </select>
-          <button id="load-archive" type="button">Refresh</button>
-        </div>
-        <div id="archive-list" class="list"></div>
-      </section>
-
-      <section id="memory-panel" class="panel">
-        <div class="section-title">
-          <span>Extracted Memory</span>
-          <span id="memory-count">0 saved</span>
-        </div>
-        <form id="memory-form" class="row">
-          <input id="memory-input" placeholder="Add memory">
-          <button class="primary" type="submit">Remember</button>
-        </form>
-        <div id="memory-list" class="list"></div>
-      </section>
-
-      <section id="studio-panel" class="panel">
-        <div class="section-title">Character Studio</div>
-        <form id="character-form" class="studio-grid">
-          <div class="field">
-            <label for="character-name">Name</label>
-            <input id="character-name">
-          </div>
-          <div class="field">
-            <label for="character-personality">Personality</label>
-            <textarea id="character-personality"></textarea>
-          </div>
-          <div class="field">
-            <label for="character-tone">Base Tone</label>
-            <textarea id="character-tone"></textarea>
-          </div>
-          <div class="field">
-            <label for="speaking-style">Speaking Style</label>
-            <textarea id="speaking-style"></textarea>
-          </div>
-          <div class="field">
-            <label for="boundaries">Boundaries</label>
-            <textarea id="boundaries"></textarea>
-          </div>
-          <div class="field">
-            <label for="mode-select">Response Mode</label>
-            <select id="mode-select"></select>
-          </div>
-          <div class="field">
-            <label for="mode-tone">Mode Tone</label>
-            <input id="mode-tone">
-          </div>
-          <div class="field">
-            <label for="mode-must">Mode Must Do</label>
-            <textarea id="mode-must"></textarea>
-          </div>
-          <div class="field">
-            <label for="mode-avoid">Mode Avoid</label>
-            <textarea id="mode-avoid"></textarea>
-          </div>
-          <button class="primary" type="submit">Save Character</button>
-          <div id="studio-status" class="status-line"></div>
-        </form>
-      </section>
-    </aside>
-  </div>
+  </section>
 
   <script>
+    const tokenKey = "ponponchan_token";
+    const modeLabels = {
+      comfort_mode: "Comfort",
+      celebration_mode: "Celebration",
+      calm_mode: "Calm",
+      reassurance_mode: "Reassurance",
+      affectionate_mode: "Affectionate",
+      guidance_mode: "Guidance",
+      safety_mode: "Safety",
+      normal_mode: "Normal"
+    };
+    const modeOrder = Object.keys(modeLabels);
     const state = {
-      userId: "local-user",
-      sessionId: "general",
+      token: localStorage.getItem(tokenKey),
+      authMode: "login",
+      user: null,
       sessions: [],
+      activeSessionId: null,
+      messages: [],
+      memories: [],
+      summary: null,
       character: null,
-      activeMode: "comfort_mode"
+      activeModeEditor: "comfort_mode",
+      sending: false
     };
 
-    const els = {
-      sessionList: document.getElementById("session-list"),
-      sessionTitle: document.getElementById("session-title"),
-      sessionDescription: document.getElementById("session-description"),
-      chatLog: document.getElementById("chat-log"),
-      chatForm: document.getElementById("chat-form"),
-      messageInput: document.getElementById("message-input"),
-      sendMessage: document.getElementById("send-message"),
-      chatStatus: document.getElementById("chat-status"),
-      newSessionForm: document.getElementById("new-session-form"),
-      newSessionTitle: document.getElementById("new-session-title"),
-      metricEmotion: document.getElementById("metric-emotion"),
-      metricMode: document.getElementById("metric-mode"),
-      metricRecall: document.getElementById("metric-recall"),
-      metricConfidence: document.getElementById("metric-confidence"),
-      archiveCount: document.getElementById("archive-count"),
-      archiveList: document.getElementById("archive-list"),
-      archiveSearch: document.getElementById("archive-search"),
-      archiveSearchButton: document.getElementById("archive-search-button"),
-      archiveScope: document.getElementById("archive-scope"),
-      loadArchive: document.getElementById("load-archive"),
-      memoryCount: document.getElementById("memory-count"),
-      memoryList: document.getElementById("memory-list"),
-      memoryForm: document.getElementById("memory-form"),
-      memoryInput: document.getElementById("memory-input"),
-      exportHistory: document.getElementById("export-history"),
-      rebuildIndex: document.getElementById("rebuild-index"),
-      characterForm: document.getElementById("character-form"),
-      characterName: document.getElementById("character-name"),
-      characterPersonality: document.getElementById("character-personality"),
-      characterTone: document.getElementById("character-tone"),
-      speakingStyle: document.getElementById("speaking-style"),
-      boundaries: document.getElementById("boundaries"),
-      modeSelect: document.getElementById("mode-select"),
-      modeTone: document.getElementById("mode-tone"),
-      modeMust: document.getElementById("mode-must"),
-      modeAvoid: document.getElementById("mode-avoid"),
-      studioStatus: document.getElementById("studio-status")
-    };
+    const $ = (id) => document.getElementById(id);
+    const authView = $("authView");
+    const appView = $("appView");
+    const authForm = $("authForm");
+    const chatForm = $("chatForm");
+    const messageInput = $("messageInput");
+    const messageList = $("messageList");
+    const chatScroll = $("chatScroll");
 
-    document.querySelectorAll(".tab").forEach((button) => {
-      button.addEventListener("click", () => {
-        document.querySelectorAll(".tab").forEach((tab) => tab.classList.remove("active"));
-        document.querySelectorAll(".panel").forEach((panel) => panel.classList.remove("active"));
-        button.classList.add("active");
-        document.getElementById(button.dataset.panel).classList.add("active");
-      });
-    });
-
-    els.chatForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const text = els.messageInput.value.trim();
-      if (!text) return;
-
-      addChatMessage({ role: "user", content: text });
-      els.messageInput.value = "";
-      els.sendMessage.disabled = true;
-      els.chatStatus.textContent = "Thinking";
-
-      try {
-        const data = await api("/api/chat", {
-          method: "POST",
-          body: {
-            message: text,
-            user_id: state.userId,
-            session_id: state.sessionId
-          }
-        });
-
-        addChatMessage({
-          id: data.assistant_message_id,
-          role: "assistant",
-          content: data.reply,
-          emotion: data.emotion,
-          mode: data.mode
-        });
-        els.metricEmotion.textContent = `${data.emotion} / ${data.intensity}`;
-        els.metricMode.textContent = data.mode;
-        els.metricRecall.textContent = `${data.archive_used} archive`;
-        els.metricConfidence.textContent = `${Math.round((data.confidence || 0) * 100)}%`;
-        els.chatStatus.textContent = data.reason || "";
-
-        await Promise.all([loadSessions(), loadArchive(), loadMemories()]);
-      } catch (error) {
-        addChatMessage({ role: "assistant", content: error.message });
-        els.chatStatus.textContent = "Request failed";
-      } finally {
-        els.sendMessage.disabled = false;
-        els.messageInput.focus();
+    function authHeaders(extra = {}) {
+      const headers = { ...extra };
+      if (state.token) {
+        headers.Authorization = `Bearer ${state.token}`;
       }
-    });
-
-    els.messageInput.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        els.chatForm.requestSubmit();
-      }
-    });
-
-    els.newSessionForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const title = els.newSessionTitle.value.trim();
-      if (!title) return;
-      const data = await api("/api/sessions", {
-        method: "POST",
-        body: { user_id: state.userId, title }
-      });
-      state.sessionId = data.session.id;
-      els.newSessionTitle.value = "";
-      await refreshForSession();
-    });
-
-    els.archiveSearchButton.addEventListener("click", searchArchive);
-    els.archiveSearch.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        searchArchive();
-      }
-    });
-    els.loadArchive.addEventListener("click", loadArchive);
-
-    els.memoryForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const content = els.memoryInput.value.trim();
-      if (!content) return;
-      await api("/api/memories", {
-        method: "POST",
-        body: { user_id: state.userId, content, pinned: true }
-      });
-      els.memoryInput.value = "";
-      await loadMemories();
-    });
-
-    els.exportHistory.addEventListener("click", exportHistory);
-    els.rebuildIndex.addEventListener("click", rebuildIndex);
-
-    els.modeSelect.addEventListener("change", () => {
-      saveCurrentModeDraft();
-      state.activeMode = els.modeSelect.value;
-      renderModeEditor();
-    });
-
-    els.characterForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      saveCurrentModeDraft();
-      const character = {
-        name: els.characterName.value.trim(),
-        personality: els.characterPersonality.value.trim(),
-        base_tone: els.characterTone.value.trim(),
-        speaking_style: linesFromText(els.speakingStyle.value),
-        boundaries: linesFromText(els.boundaries.value),
-        response_modes: state.character.response_modes
-      };
-      const data = await api("/api/character", {
-        method: "PUT",
-        body: { character }
-      });
-      state.character = data.character;
-      els.studioStatus.textContent = "Saved";
-      renderCharacterForm();
-    });
-
-    async function init() {
-      await Promise.all([loadSessions(), loadCharacter()]);
-      await refreshForSession();
+      return headers;
     }
 
-    async function refreshForSession() {
-      const current = state.sessions.find((session) => session.id === state.sessionId) || state.sessions[0];
-      if (current) {
-        state.sessionId = current.id;
-        els.sessionTitle.textContent = current.title;
-        els.sessionDescription.textContent = current.description || current.mode_hint || "";
+    async function api(path, options = {}) {
+      const headers = authHeaders(options.headers || {});
+      let body = options.body;
+      if (body && typeof body !== "string") {
+        body = JSON.stringify(body);
+        headers["Content-Type"] = "application/json";
+      }
+      const response = await fetch(path, { ...options, headers, body });
+      if (response.status === 401) {
+        logoutLocal();
+        throw new Error("Please log in again.");
+      }
+      const contentType = response.headers.get("content-type") || "";
+      const payload = contentType.includes("application/json") ? await response.json() : await response.text();
+      if (!response.ok) {
+        throw new Error(payload.detail || "Request failed.");
+      }
+      return payload;
+    }
+
+    function setAuthMode(mode) {
+      state.authMode = mode;
+      const isRegister = mode === "register";
+      $("loginTab").classList.toggle("active", !isRegister);
+      $("registerTab").classList.toggle("active", isRegister);
+      $("displayNameField").classList.toggle("hidden", !isRegister);
+      $("authTitle").textContent = isRegister ? "Create account" : "Welcome back";
+      $("authSubtitle").textContent = isRegister ? "Register for a private local profile." : "Sign in to continue.";
+      $("authSubmit").textContent = isRegister ? "Register" : "Login";
+      $("authError").textContent = "";
+      $("password").autocomplete = isRegister ? "new-password" : "current-password";
+    }
+
+    async function submitAuth(event) {
+      event.preventDefault();
+      $("authError").textContent = "";
+      const username = $("username").value.trim();
+      const password = $("password").value;
+      const displayName = $("displayName").value.trim();
+      if (!username || !password) {
+        $("authError").textContent = "Username and password are required.";
+        return;
+      }
+      const path = state.authMode === "register" ? "/api/auth/register" : "/api/auth/login";
+      const body = state.authMode === "register"
+        ? { username, password, display_name: displayName || username }
+        : { username, password };
+      setAuthLoading(true);
+      try {
+        const payload = await api(path, { method: "POST", body });
+        state.token = payload.token;
+        state.user = payload.user;
+        state.sessions = payload.sessions || [];
+        localStorage.setItem(tokenKey, state.token);
+        await enterApp();
+      } catch (error) {
+        $("authError").textContent = error.message;
+      } finally {
+        setAuthLoading(false);
+      }
+    }
+
+    function setAuthLoading(isLoading) {
+      $("authSubmit").disabled = isLoading;
+      authForm.classList.toggle("loading", isLoading);
+    }
+
+    async function boot() {
+      bindEvents();
+      renderModeOptions();
+      if (!state.token) {
+        showAuth();
+        return;
+      }
+      try {
+        const payload = await api("/api/auth/me");
+        state.user = payload.user;
+        state.sessions = payload.sessions || [];
+        await enterApp();
+      } catch (error) {
+        showAuth();
+      }
+    }
+
+    async function enterApp() {
+      authView.classList.add("hidden");
+      appView.classList.remove("hidden");
+      $("userPill").textContent = state.user?.display_name || state.user?.username || "local user";
+      if (!state.activeSessionId && state.sessions.length) {
+        state.activeSessionId = state.sessions[0].id;
       }
       renderSessions();
-      await Promise.all([loadChatHistory(), loadArchive(), loadMemories()]);
+      await Promise.all([
+        loadHistory(),
+        loadSummary(),
+        loadMemories(),
+        loadCharacter()
+      ]);
+    }
+
+    function showAuth() {
+      appView.classList.add("hidden");
+      authView.classList.remove("hidden");
+      setAuthMode(state.authMode);
+    }
+
+    async function logout() {
+      try {
+        await api("/api/auth/logout", { method: "POST" });
+      } catch (error) {
+        // Local logout still matters if the server session is gone.
+      }
+      logoutLocal();
+    }
+
+    function logoutLocal() {
+      localStorage.removeItem(tokenKey);
+      state.token = null;
+      state.user = null;
+      state.sessions = [];
+      state.activeSessionId = null;
+      state.messages = [];
+      showAuth();
+    }
+
+    function bindEvents() {
+      $("loginTab").addEventListener("click", () => setAuthMode("login"));
+      $("registerTab").addEventListener("click", () => setAuthMode("register"));
+      authForm.addEventListener("submit", submitAuth);
+      $("logoutBtn").addEventListener("click", logout);
+      $("exportBtn").addEventListener("click", exportData);
+      $("newSessionBtn").addEventListener("click", () => $("newSessionForm").classList.toggle("hidden"));
+      $("newSessionForm").addEventListener("submit", createNewSession);
+      chatForm.addEventListener("submit", sendMessage);
+      messageInput.addEventListener("keydown", handleComposerKeydown);
+      $("rebuildSummaryBtn").addEventListener("click", rebuildSummary);
+      $("clearDataBtn").addEventListener("click", clearSavedText);
+      $("memoryForm").addEventListener("submit", saveManualMemory);
+      $("characterForm").addEventListener("submit", saveCharacter);
+      $("modeEditor").addEventListener("change", switchModeEditor);
+      document.querySelectorAll(".tab").forEach((tab) => {
+        tab.addEventListener("click", () => activateTab(tab.dataset.tab));
+      });
+      document.querySelectorAll("[data-prompt]").forEach((button) => {
+        button.addEventListener("click", () => {
+          messageInput.value = button.dataset.prompt;
+          messageInput.focus();
+        });
+      });
+    }
+
+    function handleComposerKeydown(event) {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        chatForm.requestSubmit();
+      }
+    }
+
+    function activateTab(tabId) {
+      document.querySelectorAll(".tab").forEach((tab) => {
+        tab.classList.toggle("active", tab.dataset.tab === tabId);
+      });
+      document.querySelectorAll(".tab-panel").forEach((panel) => {
+        panel.classList.toggle("active", panel.id === tabId);
+      });
     }
 
     async function loadSessions() {
-      const data = await api(`/api/sessions?user_id=${encodeURIComponent(state.userId)}`);
-      state.sessions = data.sessions || [];
+      const payload = await api("/api/sessions");
+      state.sessions = payload.sessions || [];
+      if (!state.activeSessionId && state.sessions.length) {
+        state.activeSessionId = state.sessions[0].id;
+      }
       renderSessions();
     }
 
     function renderSessions() {
-      els.sessionList.innerHTML = "";
-      for (const session of state.sessions) {
+      const container = $("sessionsList");
+      container.innerHTML = "";
+      if (!state.sessions.length) {
+        container.innerHTML = `<div class="note-box">No chats yet.</div>`;
+        return;
+      }
+      state.sessions.forEach((session) => {
         const button = document.createElement("button");
         button.type = "button";
-        button.className = `session ${session.id === state.sessionId ? "active" : ""}`;
-        button.innerHTML = `<strong></strong><span></span>`;
-        button.querySelector("strong").textContent = session.title;
-        button.querySelector("span").textContent = `${session.message_count || 0} messages`;
-        button.addEventListener("click", async () => {
-          state.sessionId = session.id;
-          await refreshForSession();
-        });
-        els.sessionList.appendChild(button);
-      }
-    }
-
-    async function loadChatHistory() {
-      const data = await api(`/api/history?user_id=${state.userId}&session_id=${state.sessionId}&limit=80`);
-      els.chatLog.innerHTML = "";
-      if (!data.messages || data.messages.length === 0) {
-        addChatMessage({
-          role: "assistant",
-          content: `I am here. This ${sessionTitle()} session is fresh, so tell me what you want to work through.`
-        });
-        return;
-      }
-      for (const message of data.messages) addChatMessage(message);
-    }
-
-    function addChatMessage(message) {
-      const bubble = document.createElement("article");
-      bubble.className = `message ${message.role === "user" ? "user" : "assistant"}`;
-      bubble.textContent = message.content;
-      if (message.id) {
-        const meta = document.createElement("div");
-        meta.className = "message-meta";
-        meta.textContent = message.emotion ? `${message.emotion} / ${message.mode || ""}` : "";
-        bubble.appendChild(meta);
-      }
-      els.chatLog.appendChild(bubble);
-      els.chatLog.scrollTop = els.chatLog.scrollHeight;
-    }
-
-    async function loadArchive() {
-      const scope = els.archiveScope.value === "all" ? "all" : state.sessionId;
-      const data = await api(`/api/history?user_id=${state.userId}&session_id=${scope}&limit=80`);
-      els.archiveCount.textContent = `${data.total || 0} saved`;
-      renderArchiveItems(data.messages || []);
-    }
-
-    async function searchArchive() {
-      const query = els.archiveSearch.value.trim();
-      if (!query) {
-        await loadArchive();
-        return;
-      }
-      const scope = els.archiveScope.value === "all" ? "all" : state.sessionId;
-      const data = await api(`/api/history/search?user_id=${state.userId}&session_id=${scope}&q=${encodeURIComponent(query)}&limit=40`);
-      els.archiveCount.textContent = `${(data.results || []).length} found`;
-      renderArchiveItems(data.results || []);
-    }
-
-    function renderArchiveItems(messages) {
-      els.archiveList.innerHTML = "";
-      if (messages.length === 0) {
-        els.archiveList.appendChild(emptyItem("No archive messages."));
-        return;
-      }
-      for (const message of messages) {
-        const item = document.createElement("div");
-        item.className = `item ${message.pinned ? "pinned" : ""}`;
-        const text = document.createElement("div");
-        text.textContent = `${message.role}: ${message.content}`;
-        const meta = document.createElement("small");
-        meta.textContent = `${message.session_id || "session"} ${message.created_at || ""} ${message.score ? "score " + message.score : ""}`;
-        const actions = document.createElement("div");
-        actions.className = "item-actions";
-        actions.appendChild(actionButton(message.pinned ? "Unpin" : "Pin", () => toggleMessagePin(message)));
-        actions.appendChild(actionButton("Delete", () => deleteArchiveMessage(message), "danger"));
-        item.append(text, meta, actions);
-        els.archiveList.appendChild(item);
-      }
-    }
-
-    async function toggleMessagePin(message) {
-      await api(`/api/history/${message.id}/pin`, {
-        method: "PATCH",
-        body: { user_id: state.userId, pinned: !message.pinned }
+        button.className = `session-button ${session.id === state.activeSessionId ? "active" : ""}`;
+        button.innerHTML = `
+          <strong>${escapeHtml(session.title)}</strong>
+          <span>${escapeHtml(session.description || "summary memory ready")}</span>
+        `;
+        button.addEventListener("click", () => selectSession(session.id));
+        container.appendChild(button);
       });
-      await loadArchive();
+      renderActiveSessionHeader();
     }
 
-    async function deleteArchiveMessage(message) {
-      if (!confirm("Delete this message from local history?")) return;
-      await api(`/api/history/${message.id}?user_id=${state.userId}`, { method: "DELETE" });
-      await refreshForSession();
+    async function selectSession(sessionId) {
+      state.activeSessionId = sessionId;
+      renderSessions();
+      await Promise.all([loadHistory(), loadSummary(), loadMemories()]);
+    }
+
+    function renderActiveSessionHeader() {
+      const session = state.sessions.find((item) => item.id === state.activeSessionId);
+      $("activeSessionTitle").textContent = session?.title || "Choose a chat";
+      $("activeSessionDescription").textContent = session?.description || "Your summary memory will follow the selected chat.";
+    }
+
+    async function createNewSession(event) {
+      event.preventDefault();
+      const title = $("sessionTitle").value.trim();
+      const description = $("sessionDescription").value.trim();
+      if (!title) {
+        return;
+      }
+      const payload = await api("/api/sessions", {
+        method: "POST",
+        body: { title, description, mode_hint: "supportive" }
+      });
+      state.sessions = payload.sessions || [];
+      state.activeSessionId = payload.session.id;
+      $("sessionTitle").value = "";
+      $("sessionDescription").value = "";
+      $("newSessionForm").classList.add("hidden");
+      renderSessions();
+      await Promise.all([loadHistory(), loadSummary(), loadMemories()]);
+    }
+
+    async function loadHistory() {
+      if (!state.activeSessionId) {
+        state.messages = [];
+        renderMessages();
+        return;
+      }
+      const payload = await api(`/api/history?session_id=${encodeURIComponent(state.activeSessionId)}&limit=80`);
+      state.messages = payload.messages || [];
+      renderMessages();
+    }
+
+    function renderMessages() {
+      messageList.innerHTML = "";
+      if (!state.messages.length) {
+        messageList.innerHTML = `
+          <div class="empty-state">
+            <h2>Talk naturally.</h2>
+            <p>Ponponchan will match the emotional mode and keep long-term context as a compact summary.</p>
+          </div>
+        `;
+        return;
+      }
+      state.messages.forEach((message) => appendMessage(message.role, message.content));
+      scrollChatToBottom();
+    }
+
+    function appendMessage(role, content, typing = false) {
+      if (messageList.querySelector(".empty-state")) {
+        messageList.innerHTML = "";
+      }
+      const wrapper = document.createElement("div");
+      wrapper.className = `message ${role} ${typing ? "typing" : ""}`.trim();
+      wrapper.innerHTML = `
+        <div class="avatar">${role === "user" ? "U" : "P"}</div>
+        <div class="bubble">${escapeHtml(content)}</div>
+      `;
+      messageList.appendChild(wrapper);
+      scrollChatToBottom();
+      return wrapper;
+    }
+
+    function scrollChatToBottom() {
+      requestAnimationFrame(() => {
+        chatScroll.scrollTop = chatScroll.scrollHeight;
+      });
+    }
+
+    async function sendMessage(event) {
+      event.preventDefault();
+      const text = messageInput.value.trim();
+      if (!text || state.sending || !state.activeSessionId) {
+        return;
+      }
+      state.sending = true;
+      $("sendBtn").disabled = true;
+      $("statusLine").textContent = "Ponponchan is thinking...";
+      messageInput.value = "";
+      state.messages.push({ role: "user", content: text });
+      renderMessages();
+      const typingNode = appendMessage("assistant", "thinking", true);
+
+      try {
+        const payload = await api("/api/chat", {
+          method: "POST",
+          body: { message: text, session_id: state.activeSessionId }
+        });
+        typingNode.remove();
+        state.messages.push({ role: "assistant", content: payload.reply });
+        renderMessages();
+        $("emotionMetric").textContent = payload.emotion || "neutral";
+        $("modeMetric").textContent = cleanMode(payload.mode);
+        $("summaryMetric").textContent = payload.summary_used ? "used" : "new";
+        $("statusLine").textContent = payload.summary_compacted
+          ? "Older context was compacted into summary memory."
+          : "Ready.";
+        await Promise.all([loadSessions(), loadSummary(), loadMemories()]);
+      } catch (error) {
+        typingNode.remove();
+        $("statusLine").textContent = error.message;
+      } finally {
+        state.sending = false;
+        $("sendBtn").disabled = false;
+        messageInput.focus();
+      }
+    }
+
+    async function loadSummary() {
+      if (!state.activeSessionId) {
+        state.summary = null;
+        renderSummary();
+        return;
+      }
+      state.summary = await api(`/api/summary?session_id=${encodeURIComponent(state.activeSessionId)}`);
+      renderSummary();
+    }
+
+    function renderSummary() {
+      const summary = state.summary?.summary || "";
+      $("summaryBox").textContent = summary || "No summary yet.";
+      $("summaryUpdated").textContent = state.summary?.updated_at
+        ? `updated ${new Date(state.summary.updated_at).toLocaleString()}`
+        : "not summarized yet";
+    }
+
+    async function rebuildSummary() {
+      if (!state.activeSessionId) {
+        return;
+      }
+      $("rebuildSummaryBtn").disabled = true;
+      $("statusLine").textContent = "Rebuilding summary memory...";
+      try {
+        state.summary = await api("/api/summary/rebuild", {
+          method: "POST",
+          body: { session_id: state.activeSessionId }
+        });
+        renderSummary();
+        await loadHistory();
+        $("statusLine").textContent = "Summary memory updated.";
+      } catch (error) {
+        $("statusLine").textContent = error.message;
+      } finally {
+        $("rebuildSummaryBtn").disabled = false;
+      }
     }
 
     async function loadMemories() {
-      const data = await api(`/api/memories?user_id=${state.userId}`);
-      const memories = data.memories || [];
-      els.memoryCount.textContent = `${memories.length} saved`;
-      els.memoryList.innerHTML = "";
-      if (memories.length === 0) {
-        els.memoryList.appendChild(emptyItem("No extracted memories."));
+      const sessionParam = state.activeSessionId ? `?session_id=${encodeURIComponent(state.activeSessionId)}` : "";
+      const payload = await api(`/api/memories${sessionParam}`);
+      state.memories = payload.memories || [];
+      renderMemories();
+    }
+
+    function renderMemories() {
+      const list = $("memoryList");
+      list.innerHTML = "";
+      if (!state.memories.length) {
+        list.innerHTML = `<div class="note-box">Pinned memories will appear here.</div>`;
         return;
       }
-      for (const memory of memories) {
-        const item = document.createElement("div");
-        item.className = `item ${memory.pinned ? "pinned" : ""}`;
-        const text = document.createElement("div");
-        text.textContent = memory.content;
-        const meta = document.createElement("small");
-        meta.textContent = `importance ${memory.importance} ${memory.created_at}`;
-        const actions = document.createElement("div");
-        actions.className = "item-actions";
-        actions.appendChild(actionButton(memory.pinned ? "Unpin" : "Pin", () => toggleMemoryPin(memory)));
-        actions.appendChild(actionButton("Delete", () => deleteMemory(memory), "danger"));
-        item.append(text, meta, actions);
-        els.memoryList.appendChild(item);
-      }
-    }
-
-    async function toggleMemoryPin(memory) {
-      await api(`/api/memories/${memory.id}/pin`, {
-        method: "PATCH",
-        body: { user_id: state.userId, pinned: !memory.pinned }
+      state.memories.forEach((memory) => {
+        const card = document.createElement("article");
+        card.className = "memory-card";
+        card.innerHTML = `
+          <div class="row between">
+            <h4>${escapeHtml(memory.title)}</h4>
+            <span class="pill">${memory.pinned ? "pinned" : "saved"}</span>
+          </div>
+          <p>${escapeHtml(memory.content)}</p>
+          <div class="row">
+            <span class="pill">${escapeHtml(memory.emotion || "neutral")}</span>
+            <span class="pill">importance ${memory.importance || 3}</span>
+            <button class="ghost" type="button" data-pin="${memory.id}">${memory.pinned ? "Unpin" : "Pin"}</button>
+            <button class="ghost" type="button" data-delete="${memory.id}">Delete</button>
+          </div>
+        `;
+        list.appendChild(card);
       });
-      await loadMemories();
+      list.querySelectorAll("[data-pin]").forEach((button) => {
+        button.addEventListener("click", () => toggleMemoryPin(button.dataset.pin));
+      });
+      list.querySelectorAll("[data-delete]").forEach((button) => {
+        button.addEventListener("click", () => deleteMemory(button.dataset.delete));
+      });
     }
 
-    async function deleteMemory(memory) {
-      if (!confirm("Delete this memory?")) return;
-      await api(`/api/memories/${memory.id}?user_id=${state.userId}`, { method: "DELETE" });
-      await loadMemories();
-    }
-
-    async function loadCharacter() {
-      const data = await api("/api/character");
-      state.character = data.character;
-      renderCharacterForm();
-    }
-
-    function renderCharacterForm() {
-      const character = state.character;
-      els.characterName.value = character.name || "";
-      els.characterPersonality.value = character.personality || "";
-      els.characterTone.value = character.base_tone || "";
-      els.speakingStyle.value = (character.speaking_style || []).join("\n");
-      els.boundaries.value = (character.boundaries || []).join("\n");
-      els.modeSelect.innerHTML = "";
-      for (const mode of Object.keys(character.response_modes || {})) {
-        const option = document.createElement("option");
-        option.value = mode;
-        option.textContent = mode;
-        els.modeSelect.appendChild(option);
+    async function saveManualMemory(event) {
+      event.preventDefault();
+      const title = $("memoryTitle").value.trim() || "important memory";
+      const content = $("memoryContent").value.trim();
+      if (!content) {
+        return;
       }
-      if (!state.activeMode || !character.response_modes[state.activeMode]) {
-        state.activeMode = els.modeSelect.value;
+      const payload = await api("/api/memories", {
+        method: "POST",
+        body: {
+          title,
+          content,
+          pinned: true,
+          importance: 5,
+          session_id: state.activeSessionId
+        }
+      });
+      state.memories = payload.memories || [];
+      $("memoryTitle").value = "";
+      $("memoryContent").value = "";
+      renderMemories();
+    }
+
+    async function toggleMemoryPin(id) {
+      const memory = state.memories.find((item) => String(item.id) === String(id));
+      const payload = await api(`/api/memories/${id}/pin`, {
+        method: "PATCH",
+        body: { pinned: !(memory?.pinned) }
+      });
+      state.memories = payload.memories || [];
+      renderMemories();
+    }
+
+    async function deleteMemory(id) {
+      const payload = await api(`/api/memories/${id}`, { method: "DELETE" });
+      state.memories = payload.memories || [];
+      renderMemories();
+    }
+
+    async function clearSavedText() {
+      const ok = window.confirm("Clear saved text, summaries, memories, and chats for this account?");
+      if (!ok) {
+        return;
       }
-      els.modeSelect.value = state.activeMode;
-      renderModeEditor();
+      const payload = await api("/api/data/clear", { method: "POST" });
+      state.sessions = payload.sessions || [];
+      state.activeSessionId = state.sessions[0]?.id || null;
+      state.messages = [];
+      state.memories = [];
+      state.summary = null;
+      renderSessions();
+      await Promise.all([loadHistory(), loadSummary(), loadMemories()]);
+      $("statusLine").textContent = "Saved text cleared.";
     }
 
-    function renderModeEditor() {
-      const mode = state.character.response_modes[state.activeMode];
-      if (!mode) return;
-      els.modeTone.value = mode.tone || "";
-      els.modeMust.value = (mode.must_do || []).join("\n");
-      els.modeAvoid.value = (mode.avoid || []).join("\n");
-    }
-
-    function saveCurrentModeDraft() {
-      if (!state.character || !state.activeMode) return;
-      state.character.response_modes[state.activeMode] = {
-        tone: els.modeTone.value.trim(),
-        must_do: linesFromText(els.modeMust.value),
-        avoid: linesFromText(els.modeAvoid.value)
-      };
-    }
-
-    async function exportHistory() {
-      const response = await fetch(`/api/export?user_id=${state.userId}`);
-      const data = await response.blob();
-      const url = URL.createObjectURL(data);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "ponponchan-history.json";
-      link.click();
+    async function exportData() {
+      const response = await fetch("/api/export", { headers: authHeaders() });
+      if (!response.ok) {
+        $("statusLine").textContent = "Export failed.";
+        return;
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = "ponponchan-memory.json";
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
       URL.revokeObjectURL(url);
     }
 
-    async function rebuildIndex() {
-      els.rebuildIndex.disabled = true;
-      els.rebuildIndex.textContent = "Indexing";
-      try {
-        const data = await api(`/api/embeddings/backfill?user_id=${state.userId}&session_id=all&limit=500`, {
-          method: "POST"
-        });
-        els.chatStatus.textContent = `Indexed ${data.embedded} messages`;
-      } finally {
-        els.rebuildIndex.disabled = false;
-        els.rebuildIndex.textContent = "Build Recall Index";
-      }
+    async function loadCharacter() {
+      const payload = await api("/api/character");
+      state.character = payload.character;
+      renderCharacter();
     }
 
-    async function api(path, options = {}) {
-      const response = await fetch(path, {
-        method: options.method || "GET",
-        headers: options.body ? { "Content-Type": "application/json" } : undefined,
-        body: options.body ? JSON.stringify(options.body) : undefined
+    function renderModeOptions() {
+      const select = $("modeEditor");
+      select.innerHTML = "";
+      modeOrder.forEach((mode) => {
+        const option = document.createElement("option");
+        option.value = mode;
+        option.textContent = modeLabels[mode];
+        select.appendChild(option);
       });
-      if (!response.ok) {
-        let message = "Request failed";
-        try {
-          const error = await response.json();
-          message = error.detail || message;
-        } catch {}
-        throw new Error(message);
+      select.value = state.activeModeEditor;
+    }
+
+    function renderCharacter() {
+      const character = state.character || {};
+      $("characterName").value = character.name || "ponponchan";
+      $("personality").value = character.personality || "";
+      $("baseTone").value = character.base_tone || "";
+      $("speakingStyle").value = listToText(character.speaking_style);
+      $("boundaries").value = listToText(character.boundaries);
+      renderModeFields();
+    }
+
+    function renderModeFields() {
+      const mode = state.activeModeEditor;
+      const rules = state.character?.response_modes?.[mode] || {};
+      $("modeTone").value = rules.tone || "";
+      $("modeMustDo").value = listToText(rules.must_do);
+      $("modeAvoid").value = listToText(rules.avoid);
+    }
+
+    function switchModeEditor(event) {
+      persistModeFields();
+      state.activeModeEditor = event.target.value;
+      renderModeFields();
+    }
+
+    function persistModeFields() {
+      if (!state.character) {
+        return;
       }
-      return response.json();
+      state.character.response_modes = state.character.response_modes || {};
+      state.character.response_modes[state.activeModeEditor] = {
+        tone: $("modeTone").value.trim(),
+        must_do: textToList($("modeMustDo").value),
+        avoid: textToList($("modeAvoid").value)
+      };
     }
 
-    function actionButton(label, handler, extra = "") {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = `mini ${extra}`.trim();
-      button.textContent = label;
-      button.addEventListener("click", handler);
-      return button;
+    async function saveCharacter(event) {
+      event.preventDefault();
+      persistModeFields();
+      const character = {
+        ...(state.character || {}),
+        name: $("characterName").value.trim() || "ponponchan",
+        personality: $("personality").value.trim(),
+        base_tone: $("baseTone").value.trim(),
+        speaking_style: textToList($("speakingStyle").value),
+        boundaries: textToList($("boundaries").value),
+        response_modes: state.character?.response_modes || {}
+      };
+      const payload = await api("/api/character", {
+        method: "PUT",
+        body: { character }
+      });
+      state.character = payload.character;
+      renderCharacter();
+      $("statusLine").textContent = "Character saved.";
     }
 
-    function emptyItem(text) {
-      const item = document.createElement("div");
-      item.className = "item";
-      item.textContent = text;
-      return item;
+    function listToText(value) {
+      return Array.isArray(value) ? value.join("\n") : (value || "");
     }
 
-    function linesFromText(text) {
-      return text.split("\n").map((line) => line.trim()).filter(Boolean);
+    function textToList(value) {
+      return String(value || "")
+        .split("\n")
+        .map((line) => line.replace(/^[-*]\s*/, "").trim())
+        .filter(Boolean);
     }
 
-    function sessionTitle() {
-      const session = state.sessions.find((item) => item.id === state.sessionId);
-      return session ? session.title : "General";
+    function cleanMode(mode) {
+      return (modeLabels[mode] || mode || "normal").toLowerCase();
     }
 
-    init();
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    boot();
   </script>
 </body>
 </html>

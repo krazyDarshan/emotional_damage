@@ -21,6 +21,7 @@ http://127.0.0.1:8000
 
 - Semantic conversation recall with `nomic-embed-text`
 - Every user and assistant message saved in SQLite
+- Rolling session summaries to preserve context while keeping prompts smaller
 - Archive search across current or all sessions
 - Pin/delete conversation messages
 - Add, pin, and delete extracted memories
