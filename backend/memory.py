@@ -10,7 +10,9 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-DEFAULT_DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+LOCAL_DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+VERCEL_DATA_DIR = Path("/tmp/ponponchan-data")
+DEFAULT_DATA_DIR = VERCEL_DATA_DIR if os.getenv("VERCEL") else LOCAL_DATA_DIR
 DATA_DIR = Path(os.getenv("DATA_DIR", str(DEFAULT_DATA_DIR)))
 DB_PATH = DATA_DIR / "emotional_ai.sqlite"
 RAW_MESSAGE_KEEP_LIMIT = 18

@@ -31,6 +31,7 @@ from memory import (
     list_conversation,
     list_memories,
     list_sessions,
+    DB_PATH,
     pin_memory,
     pin_message,
     save_memory,
@@ -149,6 +150,7 @@ def health() -> dict[str, Any]:
         "chat_model": CHAT_MODEL,
         "embed_model": EMBED_MODEL,
         "ollama_host_configured": bool(OLLAMA_HOST),
+        "database_path": str(DB_PATH),
     }
 
 
