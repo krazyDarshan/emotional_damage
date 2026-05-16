@@ -6,6 +6,9 @@ import urllib.request
 
 
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://127.0.0.1:11434").rstrip("/")
+if OLLAMA_HOST.endswith("/api"):
+    OLLAMA_HOST = OLLAMA_HOST[:-4].rstrip("/")
+OLLAMA_API_KEY = os.getenv("OLLAMA_API_KEY", "")
 CHAT_MODEL = os.getenv("CHAT_MODEL", "qwen3:8b")
 EMBED_MODEL = os.getenv("EMBED_MODEL", "nomic-embed-text")
 
@@ -117,10 +120,14 @@ def parse_json_object(raw: str) -> dict:
 
 def post_json(url: str, payload: dict, timeout: int) -> dict:
     data = json.dumps(payload).encode("utf-8")
+    headers = {"Content-Type": "application/json"}
+    if OLLAMA_API_KEY:
+        headers["Authorization"] = f"Bearer {OLLAMA_API_KEY}"
+
     request = urllib.request.Request(
         url,
         data=data,
-        headers={"Content-Type": "application/json"},
+        headers=headers,
         method="POST"
     )
 

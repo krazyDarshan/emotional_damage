@@ -52,11 +52,25 @@ Render settings:
 - Start command: `cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT`
 - Environment variables:
   - `OLLAMA_HOST`: public Ollama endpoint, for example `https://your-model-server.example.com`
+  - `OLLAMA_API_KEY`: required when using Ollama Cloud
   - `CHAT_MODEL`: `qwen3:8b`
   - `EMBED_MODEL`: `nomic-embed-text`
   - `DATA_DIR`: `/var/data` if you attach a persistent disk
 
 The included `render.yaml` has these defaults ready for a Blueprint deployment.
+
+## Vercel With Ollama Cloud
+
+Use these environment variables in Vercel:
+
+```text
+OLLAMA_HOST=https://ollama.com
+OLLAMA_API_KEY=your_ollama_api_key
+CHAT_MODEL=gpt-oss:20b-cloud
+DATA_DIR=/tmp/ponponchan-data
+```
+
+Do not commit `OLLAMA_API_KEY` into GitHub.
 
 ## Docker/VPS
 
