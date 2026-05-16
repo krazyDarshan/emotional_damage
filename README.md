@@ -1,8 +1,8 @@
-# ponponchan Emotional AI
+# Ponponchan Emotional AI
 
-Local emotional companion app using FastAPI, SQLite, Ollama `qwen3:8b`, and `nomic-embed-text`.
+Local emotional companion app using FastAPI, SQLite, Ollama `qwen3:8b`, and summary-first memory.
 
-## Run
+## Run Locally
 
 ```powershell
 cd C:\Users\darsh\OneDrive\Desktop\ai\emotional_damage
@@ -17,22 +17,31 @@ Open:
 http://127.0.0.1:8000
 ```
 
-## Features
-
-- Semantic conversation recall with `nomic-embed-text`
-- Every user and assistant message saved in SQLite
-- Rolling session summaries to preserve context while keeping prompts smaller
-- Archive search across current or all sessions
-- Pin/delete conversation messages
-- Add, pin, and delete extracted memories
-- Export full local history as JSON
-- Qwen-based emotion classification with keyword safety fallback
-- Character Studio for name, personality, boundaries, and emotional response modes
-- Chat sessions for relationship talk, study stress, personal goals, roleplay mode, and general chat
-
 ## Local Models
 
 ```powershell
 ollama pull qwen3:8b
 ollama pull nomic-embed-text
 ```
+
+## Environment Variables
+
+- `OLLAMA_HOST`: Ollama server URL. Default: `http://127.0.0.1:11434`
+- `CHAT_MODEL`: chat model name. Default: `qwen3:8b`
+- `EMBED_MODEL`: embedding model name. Default: `nomic-embed-text`
+- `DATA_DIR`: SQLite data folder. Default: `data`
+
+## Features
+
+- Login and register pages
+- Multiple chat sessions
+- Summary-first long-term context
+- Recent raw chat retention only
+- Editable pinned memories
+- Qwen-based emotion classification with keyword safety fallback
+- Character Studio for personality, tone, boundaries, and emotional modes
+- Export memory data as JSON
+
+## Deployment
+
+See [DEPLOYMENT.md](DEPLOYMENT.md).

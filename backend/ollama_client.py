@@ -1,12 +1,13 @@
 import json
+import os
 import re
 import urllib.error
 import urllib.request
 
 
-OLLAMA_HOST = "http://127.0.0.1:11434"
-CHAT_MODEL = "qwen3:8b"
-EMBED_MODEL = "nomic-embed-text"
+OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://127.0.0.1:11434").rstrip("/")
+CHAT_MODEL = os.getenv("CHAT_MODEL", "qwen3:8b")
+EMBED_MODEL = os.getenv("EMBED_MODEL", "nomic-embed-text")
 
 
 def ollama_chat(

@@ -39,7 +39,7 @@ from memory import (
     search_conversation,
     update_session,
 )
-from ollama_client import generate_reply, ollama_chat
+from ollama_client import CHAT_MODEL, EMBED_MODEL, OLLAMA_HOST, generate_reply, ollama_chat
 from prompt_builder import build_system_prompt, load_character, save_character
 
 
@@ -140,6 +140,16 @@ def index() -> FileResponse:
     if not index_path.exists():
         raise HTTPException(status_code=404, detail="frontend/index.html not found")
     return FileResponse(index_path)
+
+
+@app.get("/api/health")
+def health() -> dict[str, Any]:
+    return {
+        "ok": True,
+        "chat_model": CHAT_MODEL,
+        "embed_model": EMBED_MODEL,
+        "ollama_host_configured": bool(OLLAMA_HOST),
+    }
 
 
 @app.post("/api/auth/register")

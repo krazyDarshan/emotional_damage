@@ -3,13 +3,16 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import os
 import secrets
 import sqlite3
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-DB_PATH = Path(__file__).resolve().parent.parent / "data" / "emotional_ai.sqlite"
+DEFAULT_DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+DATA_DIR = Path(os.getenv("DATA_DIR", str(DEFAULT_DATA_DIR)))
+DB_PATH = DATA_DIR / "emotional_ai.sqlite"
 RAW_MESSAGE_KEEP_LIMIT = 18
 
 DEFAULT_SESSIONS = [
