@@ -4,6 +4,7 @@ import hashlib
 import hmac
 import json
 import os
+import base64
 import secrets
 import sqlite3
 from datetime import datetime, timedelta, timezone
@@ -16,6 +17,7 @@ DEFAULT_DATA_DIR = VERCEL_DATA_DIR if os.getenv("VERCEL") else LOCAL_DATA_DIR
 DATA_DIR = Path(os.getenv("DATA_DIR", str(DEFAULT_DATA_DIR)))
 DB_PATH = DATA_DIR / "emotional_ai.sqlite"
 RAW_MESSAGE_KEEP_LIMIT = 18
+AUTH_SECRET = os.getenv("AUTH_SECRET", "ponponchan-local-development-secret")
 
 DEFAULT_SESSIONS = [
     ("relationship talk", "Heart matters, attachment, conflict, repair."),
@@ -186,6 +188,58 @@ def _hash_token(token: str) -> str:
     return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
 
+def _b64_encode(data: bytes) -> str:
+    return base64.urlsafe_b64encode(data).decode("ascii").rstrip("=")
+
+
+def _b64_decode(data: str) -> bytes:
+    padded = data + "=" * (-len(data) % 4)
+    return base64.urlsafe_b64decode(padded.encode("ascii"))
+
+
+def _sign_auth_payload(payload: str) -> str:
+    return hmac.new(AUTH_SECRET.encode("utf-8"), payload.encode("utf-8"), hashlib.sha256).hexdigest()
+
+
+def _encode_auth_token(user: dict[str, Any], days: int) -> str:
+    expires_at = (datetime.now(timezone.utc) + timedelta(days=days)).isoformat()
+    payload = {
+        "id": user["id"],
+        "username": user.get("username") or f"user-{user['id']}",
+        "display_name": user.get("display_name") or user.get("username") or "User",
+        "created_at": user.get("created_at") or now_iso(),
+        "expires_at": expires_at,
+    }
+    encoded_payload = _b64_encode(json.dumps(payload, separators=(",", ":")).encode("utf-8"))
+    signature = _sign_auth_payload(encoded_payload)
+    return f"p1.{encoded_payload}.{signature}"
+
+
+def _decode_auth_token(token: str) -> dict[str, Any] | None:
+    try:
+        version, encoded_payload, signature = token.split(".", 2)
+    except ValueError:
+        return None
+    if version != "p1":
+        return None
+    expected = _sign_auth_payload(encoded_payload)
+    if not hmac.compare_digest(signature, expected):
+        return None
+    try:
+        payload = json.loads(_b64_decode(encoded_payload))
+        expires_at = datetime.fromisoformat(payload["expires_at"])
+    except (ValueError, KeyError, json.JSONDecodeError):
+        return None
+    if expires_at < datetime.now(timezone.utc):
+        return None
+    return {
+        "id": payload["id"],
+        "username": payload.get("username") or f"user-{payload['id']}",
+        "display_name": payload.get("display_name") or payload.get("username") or "User",
+        "created_at": payload.get("created_at") or now_iso(),
+    }
+
+
 def create_user(username: str, password: str, display_name: str | None = None) -> dict[str, Any]:
     init_db()
     username = username.strip()
@@ -238,6 +292,14 @@ def authenticate_user(username: str, password: str) -> dict[str, Any] | None:
 
 def create_auth_session(user_id: int, days: int = 30) -> str:
     init_db()
+    with _connect() as conn:
+        user_row = conn.execute(
+            "SELECT id, username, display_name, created_at FROM users WHERE id = ?",
+            (user_id,),
+        ).fetchone()
+    if user_row:
+        return _encode_auth_token(dict(user_row), days)
+
     token = secrets.token_urlsafe(32)
     token_hash = _hash_token(token)
     created_at = now_iso()
@@ -256,6 +318,10 @@ def create_auth_session(user_id: int, days: int = 30) -> str:
 def get_user_by_token(token: str | None) -> dict[str, Any] | None:
     if not token:
         return None
+    stateless_user = _decode_auth_token(token)
+    if stateless_user:
+        return stateless_user
+
     init_db()
     token_hash = _hash_token(token)
     with _connect() as conn:
@@ -286,6 +352,8 @@ def get_user_by_token(token: str | None) -> dict[str, Any] | None:
 
 def delete_auth_session(token: str) -> None:
     init_db()
+    if _decode_auth_token(token):
+        return
     with _connect() as conn:
         conn.execute("DELETE FROM auth_sessions WHERE token_hash = ?", (_hash_token(token),))
 

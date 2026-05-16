@@ -151,6 +151,7 @@ def health() -> dict[str, Any]:
         "embed_model": EMBED_MODEL,
         "ollama_host_configured": bool(OLLAMA_HOST),
         "database_path": str(DB_PATH),
+        "auth_mode": "stateless-token",
     }
 
 

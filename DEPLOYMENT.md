@@ -66,8 +66,9 @@ Use these environment variables in Vercel:
 ```text
 OLLAMA_HOST=https://ollama.com
 OLLAMA_API_KEY=your_ollama_api_key
-CHAT_MODEL=gpt-oss:20b-cloud
+CHAT_MODEL=gpt-oss:20b
 DATA_DIR=/tmp/ponponchan-data
+AUTH_SECRET=make_this_a_long_random_secret
 ```
 
 Do not commit `OLLAMA_API_KEY` into GitHub.
